@@ -6,8 +6,7 @@ export default defineNuxtConfig({
     '@nuxt/eslint',
     '@nuxt/ui-pro',
     '@vueuse/nuxt',
-    '@sidebase/nuxt-auth',
-    '@logto/nuxt'
+    '@sidebase/nuxt-auth'
   ],
 
   devtools: {

@@ -15,7 +15,6 @@
   "dependencies": {
     "@iconify-json/lucide": "^1.2.26",
     "@iconify-json/simple-icons": "^1.2.24",
-    "@logto/nuxt": "^1.2.1",
     "@nuxt/ui-pro": "https://pkg.pr.new/@nuxt/ui-pro@17d88f7",
     "@sidebase/nuxt-auth": "0.10.0",
     "@unovis/ts": "^1.5.0",
