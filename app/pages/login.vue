@@ -16,7 +16,7 @@ useSeoMeta({
 const toast = useToast()
 
 const fields = [{
-  name: 'email',
+  name: 'account',
   type: 'text' as const,
   label: 'Email',
   placeholder: 'Enter your email',
@@ -36,14 +36,14 @@ const providers = [{
   label: 'Open ID Connect',
   icon: 'i-simple-icons-openid',
   onClick: () => {
-    toast.add({ title: 'Open ID Connect', description: 'Login with OIDC' })
+    window.location.href = '/api/oauth2/authorization/logto'
   }
 }]
 
 const { signIn } = useAuth()
 
 const schema = z.object({
-  email: z.string().email('Invalid email'),
+  account: z.string().email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 
