@@ -67,14 +67,14 @@ function onSubmit(payload: FormSubmitEvent<Schema>) {
   >
     <template #description>
       Already have an account? <ULink
-        to="/login"
+        to="/auth/login"
         class="text-primary-500 font-medium"
       >Login</ULink>.
     </template>
 
     <template #footer>
       By signing up, you agree to our <ULink
-        to="/"
+        to="/public"
         class="text-primary-500 font-medium"
       >Terms of Service</ULink>.
     </template>

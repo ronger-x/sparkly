@@ -40,18 +40,18 @@ const providers = [{
   }
 }]
 
-const { signIn } = useAuth()
+const { login } = useAuth()
 
 const schema = z.object({
   account: z.string().email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 
-type Schema = z.output<typeof schema>
+type LoginInput = z.output<typeof schema>
 
 function onSubmit(payload: FormSubmitEvent<Schema>) {
   console.log('Submitted', payload)
-  signIn(payload)
+  login(payload)
 }
 </script>
 
@@ -66,21 +66,21 @@ function onSubmit(payload: FormSubmitEvent<Schema>) {
   >
     <template #description>
       Don't have an account? <ULink
-        to="/signup"
+        to="/auth/signup"
         class="text-primary-500 font-medium"
       >Sign up</ULink>.
     </template>
 
     <template #password-hint>
       <ULink
-        to="/"
+        to="/public"
         class="text-primary-500 font-medium"
       >Forgot password?</ULink>
     </template>
 
     <template #footer>
       By signing in, you agree to our <ULink
-        to="/"
+        to="/public"
         class="text-primary-500 font-medium"
       >Terms of Service</ULink>.
     </template>
