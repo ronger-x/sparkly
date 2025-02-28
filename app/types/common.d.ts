@@ -80,6 +80,20 @@ export type MailMessage = {
 export interface AuthenticationData {
   access_token: string
   expires_in: number
+  refresh_token: string
+  refresh_expires_in: number
+}
+
+export interface AuthenticationResponseData {
+  code: number
+  message: string
+  data: AuthenticationData
+}
+
+export interface ResponseData {
+  code: number
+  message: string
+  data: unknown
 }
 
 export interface ResponseOK {

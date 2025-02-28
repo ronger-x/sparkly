@@ -1,4 +1,4 @@
-// plugins/auth.ts
+// plugins/auth.config.ts
 import { defu } from 'defu'
 import type { PublicConfig } from '~/types/config'
 import { defineNuxtPlugin, useAuthSession, useRequestHeaders } from '#imports'
@@ -64,17 +64,17 @@ export default defineNuxtPlugin({
 
       function isFirstTime() {
         const isPageFound = router.currentRoute.value?.matched.length > 0
-        const isPrerenderd = typeof nuxtApp.payload.prerenderedAt === 'number'
+        const isPreRendered = typeof nuxtApp.payload.prerenderedAt === 'number'
         const isServerRendered = nuxtApp.payload.serverRendered
-        const isServerValid = import.meta.server && !isPrerenderd && isPageFound
-        const isClientValid = import.meta.client && (!isServerRendered || isPrerenderd || !isPageFound)
+        const isServerValid = import.meta.server && !isPreRendered && isPageFound
+        const isClientValid = import.meta.client && (!isServerRendered || isPreRendered || !isPageFound)
         return isServerValid || isClientValid
       }
 
       function canFetchUser() {
         const isCallback = router.currentRoute.value?.path === publicConfig.redirect.callback
         const isCallbackValid = isCallback && !router.currentRoute.value?.query.error
-        const isRefreshTokenExists = !!useAuthSession()._refreshToken.get()
+        const isRefreshTokenExists = !!useAuthSession().getRefreshToken()
         return isCallbackValid || _loggedInFlag.value || isRefreshTokenExists
       }
 

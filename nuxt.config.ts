@@ -9,6 +9,10 @@ export default defineNuxtConfig({
     '@vueuse/nuxt'
   ],
 
+  plugins: [
+    '~/plugins/auth'
+  ],
+
   devtools: {
     enabled: true
   },
@@ -17,6 +21,12 @@ export default defineNuxtConfig({
 
   ui: {
     fonts: false
+  },
+
+  runtimeConfig: {
+    public: {
+      auth
+    }
   },
 
   routeRules: {
@@ -38,12 +48,6 @@ export default defineNuxtConfig({
 
   typescript: {
     strict: false
-  },
-
-  runtimeConfig: {
-    public: {
-      auth
-    }
   },
 
   eslint: {

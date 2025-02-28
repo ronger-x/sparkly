@@ -73,14 +73,15 @@ export type PublicConfig = {
   endpoint: {
     login: string
     logout: string
+    register: string
     callback: string
     user: string
     oauth2Callback: string
     oauth2Login: string
     refresh: string
     password: string
-    verifyEmail: string
-    newPassword: string
+    resetPassword: string
+    email: string
     changePassword: string
   }
   accessToken: {
@@ -90,7 +91,7 @@ export type PublicConfig = {
   }
 
   refreshToken: {
-    cookieName?: string
+    enabled?: boolean
     jwtSecret: string
     maxAge?: number
   }

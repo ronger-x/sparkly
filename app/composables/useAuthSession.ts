@@ -1,20 +1,14 @@
-import { deleteCookie, getCookie, splitCookiesString, appendResponseHeader } from 'h3'
 import type { Ref } from 'vue'
 import { useAuthToken } from './useAuthToken'
-import type { ResponseOK, AuthenticationData } from '~/types/common'
+import { useRefreshToken } from './useRefreshToken'
+import type { AuthenticationData } from '~/types/common'
 import type { PublicConfig } from '~/types/config'
-import { useRequestEvent, useRuntimeConfig, useState, useRequestHeaders, useNuxtApp, useAuth } from '#imports'
-import type { User, Session } from '#auth_adapter'
+import type { User } from '~/types/adapter'
+import { useRuntimeConfig, useState, useRequestHeaders, useNuxtApp, useAuth } from '#imports'
 
 export function useAuthSession() {
-  const event = useRequestEvent()
   const publicConfig = useRuntimeConfig().public.auth as PublicConfig
   const nuxtApp = useNuxtApp()
-
-  const _refreshToken = {
-    get: () => import.meta.server && getCookie(event!, publicConfig.refreshToken.cookieName!),
-    clear: () => import.meta.server && deleteCookie(event!, publicConfig.refreshToken.cookieName!)
-  }
 
   const _loggedInFlag = {
     get value() {
@@ -38,39 +32,30 @@ export function useAuthSession() {
    */
   async function _refresh(): Promise<void> {
     async function handler() {
-      const token = useAuthToken()
+      const refreshToken = getRefreshToken()
       const reqHeaders = useRequestHeaders(['cookie', 'user-agent'])
       const { _onLogout } = useAuth()
 
       await $fetch
-        .raw<AuthenticationData>('/api/auth/sessions/refresh', {
+        .raw<AuthenticationData>(publicConfig.endpoint.refresh, {
           baseURL: publicConfig.backendBaseUrl,
           method: 'POST',
           // Cloudflare Workers does not support "credentials" field
           ...(import.meta.client ? { credentials: 'include' } : {}),
           headers: import.meta.server ? reqHeaders : {},
+          body: {
+            refreshToken
+          },
           async  onResponseError({ response }) {
             await nuxtApp.callHook('auth:fetchError', response)
           }
         })
         .then((res) => {
-          if (import.meta.server) {
-            const cookies = splitCookiesString(res.headers.get('set-cookie') ?? '')
-
-            for (const cookie of cookies) {
-              appendResponseHeader(event!, 'set-cookie', cookie)
-            }
-          }
-
           if (res._data) {
-            token.value = {
-              access_token: res._data.access_token,
-              expires: new Date().getTime() + res._data.expires_in * 1000
-            }
+            setUniversalToken(res._data.access_token, res._data.refresh_token)
           }
         })
         .catch(async () => {
-          _refreshToken.clear()
           await _onLogout()
         })
     }
@@ -97,53 +82,47 @@ export function useAuthSession() {
   }
 
   /**
-   * Revokes all active sessions except the current one, enhancing security by invalidating unused sessions.
+   * Retrieves the refresh token.
    *
-   * @return {Promise<ResponseOK>} A promise that resolves with a ResponseOK object upon successful revocation of all sessions.
+   * @return {Promise<string | null | undefined>} The refresh token, or null if it is expired and cannot be refreshed, or undefined if the token is not set.
    */
-  function revokeAllSessions(): Promise<ResponseOK> {
-    return nuxtApp.$auth.fetch<ResponseOK>('/api/auth/sessions', {
-      method: 'DELETE'
-    })
-  }
+  async function getRefreshToken(): Promise<string | null | undefined> {
+    const refreshToken = useRefreshToken()
+    const { _onLogout } = useAuth()
 
-  /**
-   * Revokes a single stored session of the active user.
-   *
-   * @param {Session['id']} id - The ID of the session to revoke.
-   * @return {Promise<ResponseOK>} A promise that resolves with a ResponseOK object upon successful revocation of the session.
-   */
-  function revokeSession(id: Session['id']): Promise<ResponseOK> {
-    return nuxtApp.$auth.fetch<ResponseOK>(`/api/auth/sessions/${id}`, {
-      method: 'DELETE'
-    })
-  }
-
-  /**
-   * Retrieves information about all active sessions, offering insights into the user's session history.
-   *
-   * @return {Promise<Array<Session & { current: boolean }>>} A promise that resolves with an array of Session objects representing all active sessions. The current session is moved to the top of the array.
-   */
-  async function getAllSessions(): Promise<Array<Session & { current: boolean }>> {
-    const res = await nuxtApp.$auth.fetch<{ active: Session[], current?: Session }>('/api/auth/sessions')
-
-    const sessions = res.active.filter(session => session.id !== res.current?.id)
-
-    if (res.current) {
-      sessions.unshift(res.current)
+    if (refreshToken.expired) {
+      refreshToken.value = null
+      await _onLogout()
     }
 
-    return sessions.map((session, index) => ({ current: index === 0, ...session }))
+    return refreshToken.value?.refresh_token
+  }
+
+  /**
+   * Set the universal token
+   *
+   * @param {string} accessToken - The access token
+   * @param {string} refreshToken - The refresh token
+   */
+  async function setUniversalToken(accessToken: string, refreshToken: string) {
+    const token = useAuthToken()
+    const refreshAuthToken = useRefreshToken()
+    token.value = {
+      access_token: accessToken,
+      expires: new Date().getTime() + publicConfig.accessToken.maxAge * 1000
+    }
+    refreshAuthToken.value = {
+      refresh_token: refreshToken,
+      expires: new Date().getTime() + publicConfig.refreshToken.maxAge * 1000
+    }
   }
 
   return {
-    _refreshToken,
     _loggedInFlag,
     user,
     _refresh,
+    getRefreshToken,
     getAccessToken,
-    revokeAllSessions,
-    revokeSession,
-    getAllSessions
+    setUniversalToken
   }
 }

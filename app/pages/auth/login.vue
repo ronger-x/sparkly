@@ -43,15 +43,18 @@ const providers = [{
 const { login } = useAuth()
 
 const schema = z.object({
-  account: z.string().email('Invalid email'),
+  account: z.string(),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 
-type LoginInput = z.output<typeof schema>
+type Schema = z.output<typeof schema>
 
 function onSubmit(payload: FormSubmitEvent<Schema>) {
   console.log('Submitted', payload)
-  login(payload)
+  login({
+    account: payload.account,
+    password: payload.password
+  })
 }
 </script>
 

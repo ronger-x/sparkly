@@ -1,6 +1,6 @@
 import { joinURL } from 'ufo'
 import { useAuthToken } from './useAuthToken'
-import type { ResponseOK, AuthenticationData } from '~/types/common'
+import type { ResponseOK, AuthenticationResponseData } from '~/types/common'
 import type { PublicConfig } from '~/types/config'
 import { useRuntimeConfig, useRoute, useAuthSession, navigateTo, useNuxtApp } from '#imports'
 import type { User } from '~/types/adapter'
@@ -30,10 +30,10 @@ export function useAuth() {
    * Asynchronously logs in the user with the provided email and password.
    *
    * @param {LoginInput} input - The login input object containing the email and password.
-   * @return {Promise<AuthenticationData>} A promise that resolves to the authentication data if the login is successful.
+   * @return {Promise<AuthenticationResponseData>} A promise that resolves to the authentication data if the login is successful.
    */
-  async function login(input: LoginInput): Promise<AuthenticationData> {
-    const res = await $fetch<AuthenticationData>('/api/auth/login', {
+  async function login(input: LoginInput): Promise<AuthenticationResponseData> {
+    const res = await $fetch<AuthenticationResponseData>(publicConfig.endpoint.login, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'POST',
       credentials: 'include',
@@ -42,15 +42,15 @@ export function useAuth() {
         password: input.password
       },
       async  onResponseError({ response }) {
+        console.log('err:', response)
         await nuxtApp.callHook('auth:fetchError', response)
       }
     })
 
-    token.value = {
-      access_token: res.access_token,
-      expires: new Date().getTime() + res.expires_in * 1000
+    if (res.data) {
+      await _setUniversalToken(res.data.access_token, res.data.refresh_token)
+      await _onLogin()
     }
-    await _onLogin()
 
     return res
   }
@@ -66,7 +66,7 @@ export function useAuth() {
     const returnToPath = useRoute().query.redirect?.toString()
 
     await navigateTo({
-      path: joinURL(publicConfig.backendBaseUrl!, '/api/auth/login', provider),
+      path: joinURL(publicConfig.backendBaseUrl!, publicConfig.endpoint.login, provider),
       query: {
         redirect: returnToPath
       }
@@ -86,7 +86,7 @@ export function useAuth() {
   async function fetchUser(): Promise<void> {
     const { user } = useAuthSession()
     try {
-      user.value = await nuxtApp.$auth.fetch<User>('/api/auth/me')
+      user.value = await nuxtApp.$auth.fetch<User>(publicConfig.endpoint.user)
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (err) {
       user.value = null
@@ -99,7 +99,7 @@ export function useAuth() {
    * @return {Promise<void>} A promise that resolves when the logout request is complete.
    */
   async function logout(): Promise<void> {
-    await $fetch<ResponseOK>('/api/auth/logout', {
+    await $fetch<ResponseOK>(publicConfig.endpoint.logout, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'POST',
       credentials: 'include',
@@ -148,7 +148,7 @@ export function useAuth() {
    * @return {Promise<ResponseOK>} - A promise that resolves to a ResponseOK object if the registration is successful.
    */
   async function register(input: RegisterInput): Promise<ResponseOK> {
-    return await $fetch<ResponseOK>('/api/auth/register', {
+    return await $fetch<ResponseOK>(publicConfig.endpoint.register, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'POST',
       body: {
@@ -170,7 +170,7 @@ export function useAuth() {
    * @return {Promise<ResponseOK>} A Promise that resolves to the response from the server.
    */
   async function requestPasswordReset(email: string): Promise<ResponseOK> {
-    return await $fetch<ResponseOK>('/api/auth/password/request', {
+    return await $fetch<ResponseOK>(publicConfig.endpoint.password, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'POST',
       credentials: 'omit',
@@ -190,7 +190,7 @@ export function useAuth() {
    * @return {Promise<ResponseOK>} A Promise that resolves to the response from the server.
    */
   async function resetPassword(password: string): Promise<ResponseOK> {
-    return await $fetch<ResponseOK>('/api/auth/password/reset', {
+    return await $fetch<ResponseOK>(publicConfig.endpoint.resetPassword, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'PUT',
       credentials: 'omit',
@@ -211,7 +211,7 @@ export function useAuth() {
    * @return {Promise<ResponseOK>} A Promise that resolves to the response from the server.
    */
   async function requestEmailVerify(email: string): Promise<ResponseOK> {
-    return await $fetch<ResponseOK>('/api/auth/email/request', {
+    return await $fetch<ResponseOK>(publicConfig.endpoint.email, {
       baseURL: publicConfig.backendBaseUrl,
       method: 'POST',
       credentials: 'omit',
@@ -231,13 +231,24 @@ export function useAuth() {
    * @return {Promise<ResponseOK>} - A promise that resolves to a ResponseOK object if the password change is successful.
    */
   function changePassword(input: ChangePasswordInput): Promise<ResponseOK> {
-    return nuxtApp.$auth.fetch<ResponseOK>('/api/auth/password/change', {
+    return nuxtApp.$auth.fetch<ResponseOK>(publicConfig.endpoint.changePassword, {
+      baseURL: publicConfig.backendBaseUrl,
       method: 'PUT',
       body: {
         currentPassword: input.currentPassword,
         newPassword: input.newPassword
       }
     })
+  }
+
+  /**
+   * Set the universal token
+   *
+   * @param {string} accessToken - The access token
+   * @param {string} refreshToken - The refresh token
+   */
+  async function _setUniversalToken(accessToken: string, refreshToken: string) {
+    await useAuthSession().setUniversalToken(accessToken, refreshToken)
   }
 
   return {
@@ -250,6 +261,7 @@ export function useAuth() {
     resetPassword,
     requestEmailVerify,
     changePassword,
-    _onLogout
+    _onLogout,
+    _setUniversalToken
   }
 }
