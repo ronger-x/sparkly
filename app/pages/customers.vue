@@ -178,7 +178,8 @@ const columns: TableColumn<User>[] = [
 const statusFilter = ref('all')
 
 watch(() => statusFilter.value, (newVal) => {
-  if (!table?.value.tableApi) return
+  if (!table?.value?.tableApi) return
+
   const statusColumn = table.value.tableApi.getColumn('status')
   if (!statusColumn) return
 
@@ -220,7 +221,7 @@ const pagination = ref({
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <CustomersDeleteModal :nb-customers="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
