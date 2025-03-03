@@ -22,18 +22,16 @@ export const auth: Partial<ModuleOptions> = {
   },
 
   endpoint: {
-    login: '/api/auth/login',
-    logout: '/api/auth/logout',
-    register: '/api/auth/register',
-    callback: '/api/auth/callback',
-    user: '/api/auth/me',
-    oauth2Callback: '/api/oauth2/callback',
-    oauth2Login: '/api/oauth2/authorization/logto',
-    refresh: '/api/auth/refresh',
-    password: '/api/auth/password/request',
-    resetPassword: '/api/auth/password/reset',
-    email: '/api/auth/email/request',
-    changePassword: '/api/auth/password/change'
+    login: { path: '/api/auth/login', method: 'post' },
+    logout: { path: '/api/auth/logout', method: 'post' },
+    register: { path: '/api/auth/register', method: 'post' },
+    callback: { path: '/api/auth/callback', method: 'post' },
+    user: { path: '/api/auth/me', method: 'get' },
+    refresh: { path: '/api/auth/refresh', method: 'post' },
+    password: { path: '/api/auth/password/request', method: 'post' },
+    resetPassword: { path: '/api/auth/password/reset', method: 'put' },
+    email: { path: '/api/auth/email/request', method: 'post' },
+    changePassword: { path: '/api/auth/password/change', method: 'put' }
   },
 
   accessToken: {
