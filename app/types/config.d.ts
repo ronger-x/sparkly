@@ -1,3 +1,5 @@
+import type { RouterMethod } from 'h3'
+
 interface MailSendgridProvider {
   name: 'sendgrid'
   apiKey: string
@@ -71,18 +73,46 @@ export type PublicConfig = {
     emailVerify?: string
   }
   endpoint: {
-    login: string
-    logout: string
-    register: string
-    callback: string
-    user: string
-    oauth2Callback: string
-    oauth2Login: string
-    refresh: string
-    password: string
-    resetPassword: string
-    email: string
-    changePassword: string
+    login: {
+      path: string
+      method: RouterMethod
+    }
+    logout: {
+      path: string
+      method: RouterMethod
+    }
+    register: {
+      path: string
+      method: RouterMethod
+    }
+    callback: {
+      path: string
+      method: RouterMethod
+    }
+    user: {
+      path: string
+      method: RouterMethod
+    }
+    refresh: {
+      path: string
+      method: RouterMethod
+    }
+    password: {
+      path: string
+      method: RouterMethod
+    }
+    resetPassword: {
+      path: string
+      method: RouterMethod
+    }
+    email: {
+      path: string
+      method: RouterMethod
+    }
+    changePassword: {
+      path: string
+      method: RouterMethod
+    }
   }
   accessToken: {
     jwtSecret: string

@@ -50,10 +50,10 @@ const schema = z.object({
 type Schema = z.output<typeof schema>
 
 function onSubmit(payload: FormSubmitEvent<Schema>) {
-  console.log('Submitted', payload)
+  const { account, password } = payload.data
   login({
-    account: payload.account,
-    password: payload.password
+    account: account,
+    password: password
   })
 }
 </script>
