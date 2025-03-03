@@ -3,8 +3,8 @@
 const route = useRoute()
 const { token, refreshToken } = route.query
 
-const { signIn } = useAuth()
-signIn({ token, refreshToken })
+const { _setUniversalToken } = useAuth()
+_setUniversalToken(token, refreshToken)
 </script>
 
 <template>

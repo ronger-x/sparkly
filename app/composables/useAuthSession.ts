@@ -35,11 +35,11 @@ export function useAuthSession() {
       const refreshToken = getRefreshToken()
       const reqHeaders = useRequestHeaders(['cookie', 'user-agent'])
       const { _onLogout } = useAuth()
-
+      const { path, method } = publicConfig.endpoint.refresh
       await $fetch
-        .raw<AuthenticationData>(publicConfig.endpoint.refresh, {
+        .raw<AuthenticationData>(path, {
           baseURL: publicConfig.backendBaseUrl,
-          method: 'POST',
+          method: method,
           // Cloudflare Workers does not support "credentials" field
           ...(import.meta.client ? { credentials: 'include' } : {}),
           headers: import.meta.server ? reqHeaders : {},

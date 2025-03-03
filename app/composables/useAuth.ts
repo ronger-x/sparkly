@@ -49,7 +49,8 @@ export function useAuth() {
     })
 
     if (res.data) {
-      await _setUniversalToken(res.data.access_token, res.data.refresh_token)
+      console.log('loginData: ', res.data)
+      await _setUniversalToken(res.data.token, res.data.refreshToken)
     }
 
     return res
