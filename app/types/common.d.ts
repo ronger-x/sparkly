@@ -88,10 +88,10 @@ export interface AuthenticationResponseData {
   data: AuthenticationData
 }
 
-export interface ResponseData {
+export interface ResponseData<T> {
   code: number
   message: string
-  data: unknown
+  data: T
 }
 
 export interface ResponseOK {

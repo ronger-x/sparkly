@@ -1,6 +1,6 @@
 import { joinURL } from 'ufo'
 import { useAuthToken } from './useAuthToken'
-import type { ResponseOK, AuthenticationResponseData } from '~/types/common'
+import type { ResponseOK, AuthenticationData, ResponseData } from '~/types/common'
 import type { PublicConfig } from '~/types/config'
 import { useRuntimeConfig, useRoute, useAuthSession, navigateTo, useNuxtApp } from '#imports'
 import type { User } from '~/types/adapter'
@@ -30,11 +30,11 @@ export function useAuth() {
    * Asynchronously logs in the user with the provided email and password.
    *
    * @param {LoginInput} input - The login input object containing the email and password.
-   * @return {Promise<AuthenticationResponseData>} A promise that resolves to the authentication data if the login is successful.
+   * @return {Promise<ResponseData<AuthenticationData>>} A promise that resolves to the authentication data if the login is successful.
    */
-  async function login(input: LoginInput): Promise<AuthenticationResponseData> {
+  async function login(input: LoginInput): Promise<ResponseData<AuthenticationData>> {
     const { path, method } = publicConfig.endpoint.login
-    const res = await $fetch<AuthenticationResponseData>(path, {
+    const res = await $fetch<ResponseData<AuthenticationData>>(path, {
       baseURL: publicConfig.backendBaseUrl,
       method: method,
       credentials: 'include',

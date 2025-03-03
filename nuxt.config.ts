@@ -57,5 +57,14 @@ export default defineNuxtConfig({
         braceStyle: '1tbs'
       }
     }
+  },
+
+  devServer: {
+    https: {
+      key: './key.pem',
+      cert: './cert.pem'
+    },
+    host: '0.0.0.0',
+    port: 3000
   }
 })

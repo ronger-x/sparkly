@@ -52,7 +52,7 @@ export function useAuthSession() {
         })
         .then((res) => {
           if (res._data) {
-            setUniversalToken(res._data.access_token, res._data.refresh_token)
+            setUniversalToken(res._data.token, res._data.refreshToken)
           }
         })
         .catch(async () => {
