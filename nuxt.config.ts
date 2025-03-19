@@ -15,14 +15,12 @@ export default defineNuxtConfig({
   },
 
   runtimeConfig: {
-    baseURL: apiConfig.BASE
+    public: {
+      baseURL: apiConfig.BASE
+    }
   },
 
   devServer: {
-    https: {
-      key: './key.pem',
-      cert: './cert.pem'
-    },
     host: '0.0.0.0',
     port: 3000
   },
@@ -84,6 +82,7 @@ export default defineNuxtConfig({
         dataType: {
           account: 'string',
           nickname: 'string',
+          email: 'string',
           avatar: 'string',
           permissions: 'string[]',
           role: 'string[]'

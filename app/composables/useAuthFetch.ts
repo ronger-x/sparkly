@@ -38,7 +38,8 @@ function fetch<T>(url: UrlType, opts: HttpOption<T>): AsyncData<ResOptions<T>, F
   const options = opts as UseFetchOptions<ResOptions<T>>
   options.lazy = options.lazy ?? true
 
-  const { baseURL } = useRuntimeConfig()
+  const { baseURL } = useRuntimeConfig().public
+
   const { token } = useAuth()
 
   return useFetch<ResOptions<T>>(url, {
@@ -51,14 +52,22 @@ function fetch<T>(url: UrlType, opts: HttpOption<T>): AsyncData<ResOptions<T>, F
         const reqHeaders = useRequestHeaders(['user-agent'])
         // 使用 defu 合并 headers
         options.headers = defu(options.headers, reqHeaders, {
-          Authorization: `Bearer ${token.value}`
+          Authorization: `${token.value}`
         })
       }
     },
     // Response interception
     onResponse(_context) {
       // Handle the response
-      console.log('response', _context)
+      if (_context.response._data?.code !== 200) {
+        console.log('error', _context.error)
+        throw createError({
+          statusCode: _context.response._data?.code,
+          statusMessage: _context.response._data?.message,
+          data: _context.response._data?.err
+        })
+      }
+      _context.response._data = _context.response._data?.data
     },
     // Error interception
     onResponseError({ response, options: { method } }) {
@@ -69,16 +78,6 @@ function fetch<T>(url: UrlType, opts: HttpOption<T>): AsyncData<ResOptions<T>, F
     // Merge the options
     ...options
   }) as AsyncData<ResOptions<T>, FetchError<ResOptions<T>>>
-}
-
-export const $http = {
-  get: <T>(url: UrlType, params?: SearchParameters, option?: HttpOption<T>) => {
-    return fetch<T>(url, { method: 'get', params, ...option })
-  },
-
-  post: <T>(url: UrlType, body?: RequestInit['body'] | Record<string, any>, option?: HttpOption<T>) => {
-    return fetch<T>(url, { method: 'post', body, ...option })
-  }
 }
 
 export function useAuthFetch<T>(

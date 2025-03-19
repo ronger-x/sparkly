@@ -14,22 +14,35 @@ const profileSchema = z.object({
 
 type ProfileSchema = z.output<typeof profileSchema>
 
+const { data: userInfo } = useAuth()
+
 const profile = reactive<Partial<ProfileSchema>>({
-  name: 'Benjamin Canac',
-  email: 'ben@nuxtlabs.com',
-  username: 'benjamincanac',
-  avatar: undefined,
+  name: userInfo.value?.nickname,
+  email: userInfo.value?.email,
+  username: userInfo.value?.account,
+  avatar: userInfo.value?.avatar,
   bio: undefined
 })
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
-  toast.add({
-    title: 'Success',
-    description: 'Your settings have been updated.',
-    icon: 'i-lucide-check',
-    color: 'success'
+  const { data } = await useAuthFetch('/user/profile', {
+    method: 'put',
+    body: {
+      nickname: event.data.name,
+      email: event.data.email,
+      avatar: event.data.avatar,
+      bio: event.data.bio
+    }
   })
-  console.log(event.data)
+  if (data.value) {
+    useAuth().getSession()
+    toast.add({
+      title: 'Success',
+      description: 'Your settings have been updated.',
+      icon: 'i-lucide-check',
+      color: 'success'
+    })
+  }
 }
 
 function onFileChange(e: Event) {
@@ -109,6 +122,7 @@ function onFileClick() {
           v-model="profile.username"
           type="username"
           autocomplete="off"
+          disabled
         />
       </UFormField>
       <USeparator />

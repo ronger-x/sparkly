@@ -2,26 +2,10 @@ const { NODE_ENV } = process.env
 const isDevMode = NODE_ENV === 'development'
 const apiConfig = {
   production: {
-    FE: 'https://rymcu.com',
-    BASE: 'https://rymcu.com/api',
-    AUTH: '/api/auth',
-    CDN: 'https://static.rymcu.com',
-    PROXY: 'https://static.rymcu.com/proxy',
-    SOCKET: 'https://rymcu.com/wss',
-    GRAVATAR: 'https://static.rymcu.com/avatar',
-    VDITOR: 'https://static.rymcu.com/vditor@3.10.3/',
-    VDITOR_CSS: 'https://static.rymcu.com/vditor@3.10.3/dist/css/content-theme'
+    BASE: 'https://rymcu.com/api'
   },
   development: {
-    FE: 'http://192.168.31.70:3000',
-    BASE: 'https://rymcu.local/api',
-    AUTH: '/api/auth',
-    CDN: '',
-    PROXY: '/proxy',
-    SOCKET: 'http://192.168.31.70:3000/ws',
-    GRAVATAR: 'https://static.rymcu.com/avatar',
-    VDITOR: 'https://static.rymcu.com/vditor@3.10.3/',
-    VDITOR_CSS: 'https://static.rymcu.com/vditor@3.10.3/dist/css/content-theme'
+    BASE: 'http://192.168.31.70:8080/mortise/api/v1'
   }
 }
 export default apiConfig[isDevMode ? 'development' : 'production']
