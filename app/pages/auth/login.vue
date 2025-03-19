@@ -40,21 +40,23 @@ const providers = [{
   }
 }]
 
-const { login } = useAuth()
+const { signIn } = useAuth()
 
 const schema = z.object({
-  account: z.string(),
+  account: z.string().email('Invalid email'),
   password: z.string().min(8, 'Must be at least 8 characters')
 })
 
 type Schema = z.output<typeof schema>
 
-function onSubmit(payload: FormSubmitEvent<Schema>) {
+async function onSubmit(payload: FormSubmitEvent<Schema>) {
   const { account, password } = payload.data
-  login({
-    account: account,
-    password: password
-  })
+  try {
+    await signIn({ account, password }, { callbackUrl: useRoute().query.redirect as string ?? '/', external: true })
+  } catch (error) {
+    console.error(error)
+    toast.add({ title: 'Login failed', description: 'Invalid credentials' })
+  }
 }
 </script>
 
@@ -76,7 +78,7 @@ function onSubmit(payload: FormSubmitEvent<Schema>) {
 
     <template #password-hint>
       <ULink
-        to="/public"
+        to="/auth/forgot-password"
         class="text-primary-500 font-medium"
       >Forgot password?</ULink>
     </template>

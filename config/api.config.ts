@@ -13,12 +13,12 @@ const apiConfig = {
     VDITOR_CSS: 'https://static.rymcu.com/vditor@3.10.3/dist/css/content-theme'
   },
   development: {
-    FE: 'http://localhost:3000',
-    BASE: 'http://localhost:8080/mortise/api/v1',
+    FE: 'http://192.168.31.70:3000',
+    BASE: 'https://rymcu.local/api',
     AUTH: '/api/auth',
     CDN: '',
     PROXY: '/proxy',
-    SOCKET: 'http://localhost:3000/ws',
+    SOCKET: 'http://192.168.31.70:3000/ws',
     GRAVATAR: 'https://static.rymcu.com/avatar',
     VDITOR: 'https://static.rymcu.com/vditor@3.10.3/',
     VDITOR_CSS: 'https://static.rymcu.com/vditor@3.10.3/dist/css/content-theme'
