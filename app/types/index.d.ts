@@ -62,6 +62,16 @@ export interface Range {
 
 export type Status = 'enabled' | 'disabled'
 
+export interface DictType {
+  id: number
+  typeCode: string
+  label: string
+  sortNo: number
+  description: string
+  status: Status
+  createdTime: string
+}
+
 export interface Dict {
   id: number
   dictTypeCode: string
@@ -70,7 +80,6 @@ export interface Dict {
   sortNo: number
   description: string
   status: Status
-  location: string
   createdTime: string
 }
 

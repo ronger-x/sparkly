@@ -2,7 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-import type { Dict, PageInfo } from '~/types'
+import type { DictType, PageInfo } from '~/types'
 
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
@@ -17,9 +17,9 @@ const columnFilters = ref([{
   value: ''
 }])
 const columnVisibility = ref()
-const rowSelection = ref({ 1: true })
+const rowSelection = ref()
 
-const { data, status } = await useAuthFetch<PageInfo<Dict>>('/admin/dict/list', {
+const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
   lazy: true
 })
 
@@ -27,7 +27,7 @@ const page = computed(() => {
   return data.value?.data || { records: [] }
 })
 
-function getRowItems(row: Row<Dict>) {
+function getRowItems(row: Row<DictType>) {
   return [
     {
       type: 'label',
@@ -68,7 +68,7 @@ function getRowItems(row: Row<Dict>) {
   ]
 }
 
-const columns: TableColumn<Dict>[] = [
+const columns: TableColumn<DictType>[] = [
   {
     id: 'select',
     header: ({ table }) =>
@@ -92,9 +92,9 @@ const columns: TableColumn<Dict>[] = [
     header: 'Label'
   },
   {
-    accessorKey: 'value',
-    header: 'Value',
-    cell: ({ row }) => row.original.value
+    accessorKey: 'typeCode',
+    header: 'TypeCode',
+    cell: ({ row }) => row.original.typeCode
   },
   {
     accessorKey: 'status',

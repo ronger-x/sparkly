@@ -14,7 +14,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      baseURL: 'http://127.0.0.1:9999/mortise/api/v1'
+      baseURL: 'https://rymcu.local/api'
     }
   },
 
@@ -40,7 +40,7 @@ export default defineNuxtConfig({
   },
 
   auth: {
-    baseURL: 'http://127.0.0.1:9999/mortise/api/v1',
+    baseURL: 'https://rymcu.local/api',
     sessionRefresh: {
       enablePeriodically: 14 * 60 * 1000, // 14 min
       enableOnWindowFocus: false
