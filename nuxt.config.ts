@@ -1,6 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import apiConfig from './config/api.config'
-
 export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui-pro', '@vueuse/nuxt', '@sidebase/nuxt-auth'],
 
@@ -16,7 +14,7 @@ export default defineNuxtConfig({
 
   runtimeConfig: {
     public: {
-      baseURL: apiConfig.BASE
+      baseURL: 'http://127.0.0.1:9999/mortise/api/v1'
     }
   },
 
@@ -42,7 +40,7 @@ export default defineNuxtConfig({
   },
 
   auth: {
-    baseURL: apiConfig.BASE,
+    baseURL: 'http://127.0.0.1:9999/mortise/api/v1',
     sessionRefresh: {
       enablePeriodically: 14 * 60 * 1000, // 14 min
       enableOnWindowFocus: false

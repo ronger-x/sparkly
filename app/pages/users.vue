@@ -2,7 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-import type { User } from '~/types'
+import type { PageInfo, User } from '~/types'
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
@@ -20,8 +20,12 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref({ 1: true })
 
-const { data, status } = await useFetch<User[]>('/api/customers', {
+const { data, status } = await useAuthFetch<PageInfo<User>>('/admin/users', {
   lazy: true
+})
+
+const page = computed(() => {
+  return data.value?.data || { records: [] }
 })
 
 function getRowItems(row: Row<User>) {
@@ -31,13 +35,13 @@ function getRowItems(row: Row<User>) {
       label: 'Actions'
     },
     {
-      label: 'Copy customer ID',
+      label: 'Copy user ID',
       icon: 'i-lucide-copy',
       onSelect() {
         navigator.clipboard.writeText(row.original.id.toString())
         toast.add({
           title: 'Copied to clipboard',
-          description: 'Customer ID copied to clipboard'
+          description: 'User ID copied to clipboard'
         })
       }
     },
@@ -45,24 +49,24 @@ function getRowItems(row: Row<User>) {
       type: 'separator'
     },
     {
-      label: 'View customer details',
+      label: 'View user details',
       icon: 'i-lucide-list'
     },
     {
-      label: 'View customer payments',
+      label: 'View user payments',
       icon: 'i-lucide-wallet'
     },
     {
       type: 'separator'
     },
     {
-      label: 'Delete customer',
+      label: 'Delete user',
       icon: 'i-lucide-trash',
       color: 'error',
       onSelect() {
         toast.add({
-          title: 'Customer deleted',
-          description: 'The customer has been deleted.'
+          title: 'User deleted',
+          description: 'The user has been deleted.'
         })
       }
     }
@@ -89,12 +93,12 @@ const columns: TableColumn<User>[] = [
       })
   },
   {
-    accessorKey: 'id',
-    header: 'ID'
+    accessorKey: 'account',
+    header: 'Account'
   },
   {
-    accessorKey: 'name',
-    header: 'Name',
+    accessorKey: 'nickname',
+    header: 'Nickname',
     cell: ({ row }) => {
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
@@ -102,8 +106,8 @@ const columns: TableColumn<User>[] = [
           size: 'lg'
         }),
         h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.name),
-          h('p', { class: '' }, `@${row.original.name}`)
+          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.nickname),
+          h('p', { class: '' }, `@${row.original.nickname}`)
         ])
       ])
     }
@@ -147,6 +151,10 @@ const columns: TableColumn<User>[] = [
         row.original.status
       )
     }
+  },
+  {
+    accessorKey: 'lastLoginTime',
+    header: 'Last Login Time'
   },
   {
     id: 'actions',
@@ -197,15 +205,15 @@ const pagination = ref({
 </script>
 
 <template>
-  <UDashboardPanel id="customers">
+  <UDashboardPanel id="users">
     <template #header>
-      <UDashboardNavbar title="Customers">
+      <UDashboardNavbar title="Users">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
         <template #right>
-          <CustomersAddModal />
+          <UsersAddModal />
         </template>
       </UDashboardNavbar>
     </template>
@@ -221,7 +229,7 @@ const pagination = ref({
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <CustomersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <UsersDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
               label="Delete"
@@ -235,7 +243,7 @@ const pagination = ref({
                 </UKbd>
               </template>
             </UButton>
-          </CustomersDeleteModal>
+          </UsersDeleteModal>
 
           <USelect
             v-model="statusFilter"
@@ -288,7 +296,7 @@ const pagination = ref({
           getPaginationRowModel: getPaginationRowModel()
         }"
         class="shrink-0"
-        :data="data"
+        :data="page.records"
         :columns="columns"
         :loading="status === 'pending'"
         :ui="{

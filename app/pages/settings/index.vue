@@ -5,7 +5,7 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 const fileRef = ref<HTMLInputElement>()
 
 const profileSchema = z.object({
-  name: z.string().min(2, 'Too short'),
+  nickname: z.string().min(2, 'Too short'),
   email: z.string().email('Invalid email'),
   username: z.string().min(2, 'Too short'),
   avatar: z.string().optional(),
@@ -17,7 +17,7 @@ type ProfileSchema = z.output<typeof profileSchema>
 const { data: userInfo } = useAuth()
 
 const profile = reactive<Partial<ProfileSchema>>({
-  name: userInfo.value?.nickname,
+  nickname: userInfo.value?.nickname,
   email: userInfo.value?.email,
   username: userInfo.value?.account,
   avatar: userInfo.value?.avatar,
@@ -28,7 +28,7 @@ async function onSubmit(event: FormSubmitEvent<ProfileSchema>) {
   const { data } = await useAuthFetch('/user/profile', {
     method: 'put',
     body: {
-      nickname: event.data.name,
+      nickname: event.data.nickname,
       email: event.data.email,
       avatar: event.data.avatar,
       bio: event.data.bio
@@ -92,7 +92,7 @@ function onFileClick() {
         class="flex max-sm:flex-col justify-between items-start gap-4"
       >
         <UInput
-          v-model="profile.name"
+          v-model="profile.nickname"
           autocomplete="off"
         />
       </UFormField>
@@ -135,7 +135,7 @@ function onFileClick() {
         <div class="flex flex-wrap items-center gap-3">
           <UAvatar
             :src="profile.avatar"
-            :alt="profile.name"
+            :alt="profile.nickname"
             size="lg"
           />
           <UButton

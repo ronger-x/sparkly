@@ -12,9 +12,19 @@ const links = [[{
   to: '/inbox',
   badge: '4'
 }, {
-  label: 'Customers',
+  label: 'Users',
   icon: 'i-lucide-users',
-  to: '/customers'
+  to: '/users'
+}, {
+  label: 'Systems',
+  to: '/systems',
+  icon: 'i-lucide-settings',
+  defaultOpen: true,
+  children: [{
+    label: 'Dictionaries',
+    to: '/dictionaries',
+    exact: true
+  }]
 }, {
   label: 'Settings',
   to: '/settings',

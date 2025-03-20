@@ -3,8 +3,6 @@ import { computed, ref, watch } from 'vue'
 import { breakpointsTailwind } from '@vueuse/core'
 import type { Mail } from '~/types'
 
-const nuxtApp = useNuxtApp()
-
 const tabItems = [{
   label: 'All',
   value: 'all'
@@ -14,7 +12,7 @@ const tabItems = [{
 }]
 const selectedTab = ref('all')
 
-const { data: mails } = await nuxtApp.$auth.fetch<Mail[]>('/api/mails')
+const { data: mails } = await useAuthFetch<Mail[]>('/api/mails', { default: () => [] })
 
 // Filter mails based on the selected tab
 const filteredMails = computed(() => {

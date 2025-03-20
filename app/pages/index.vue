@@ -9,9 +9,9 @@ const items = [[{
   icon: 'i-lucide-send',
   to: '/inbox'
 }, {
-  label: 'New customer',
+  label: 'New user',
   icon: 'i-lucide-user-plus',
-  to: '/customers'
+  to: '/users'
 }]]
 
 const range = shallowRef<Range>({

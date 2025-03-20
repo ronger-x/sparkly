@@ -3,28 +3,30 @@ import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
 const schema = z.object({
-  name: z.string().min(2, 'Too short'),
-  email: z.string().email('Invalid email')
+  label: z.string().min(2, 'Too short'),
+  value: z.string(),
+  sortNo: z.number()
 })
 const open = ref(false)
 
 type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
-  name: undefined,
-  email: undefined
+  label: undefined,
+  value: undefined,
+  sortNo: undefined
 })
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  toast.add({ title: 'Success', description: `New customer ${event.data.name} added`, color: 'success' })
+  toast.add({ title: 'Success', description: `New dict ${event.data.label} added`, color: 'success' })
   open.value = false
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" title="New customer" description="Add a new customer to the database">
-    <UButton label="New customer" icon="i-lucide-plus" />
+  <UModal v-model:open="open" title="New dict" description="Add a new dict to the database">
+    <UButton label="New dict" icon="i-lucide-plus" />
 
     <template #body>
       <UForm
@@ -33,11 +35,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="space-y-4"
         @submit="onSubmit"
       >
-        <UFormField label="Name" placeholder="John Doe" name="name">
-          <UInput v-model="state.name" class="w-full" />
+        <UFormField label="Label" placeholder="Enabled" name="label">
+          <UInput v-model="state.label" class="w-full" />
         </UFormField>
-        <UFormField label="Email" placeholder="john.doe@example.com" name="email">
-          <UInput v-model="state.email" class="w-full" />
+        <UFormField label="Value" placeholder="1" name="value">
+          <UInput v-model="state.value" class="w-full" />
+        </UFormField>
+        <UFormField label="SortNo" placeholder="1" name="sortNo">
+          <UInput v-model="state.sortNo" class="w-full" />
         </UFormField>
         <div class="flex justify-end gap-2">
           <UButton

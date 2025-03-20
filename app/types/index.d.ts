@@ -5,7 +5,8 @@ export type SaleStatus = 'paid' | 'failed' | 'refunded'
 
 export interface User {
   id: number
-  name: string
+  account: string
+  nickname: string
   email: string
   avatar?: AvatarProps
   status: UserStatus
@@ -57,4 +58,26 @@ export type Period = 'daily' | 'weekly' | 'monthly'
 export interface Range {
   start: Date
   end: Date
+}
+
+export type Status = 'enabled' | 'disabled'
+
+export interface Dict {
+  id: number
+  dictTypeCode: string
+  label: string
+  value: string
+  sortNo: number
+  description: string
+  status: Status
+  location: string
+  createdTime: string
+}
+
+export interface PageInfo<T> {
+  records: T[]
+  total: number
+  size: number
+  current: number
+  pages: number
 }

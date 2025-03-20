@@ -1,5 +1,5 @@
 import { defu } from 'defu'
-import type { FetchError, FetchResponse, SearchParameters } from 'ofetch'
+import type { FetchError, FetchResponse } from 'ofetch'
 import { hash } from 'ohash'
 import type { AsyncData, UseFetchOptions } from '#app'
 import type { KeysOf } from '#app/composables/asyncData'
@@ -67,7 +67,6 @@ function fetch<T>(url: UrlType, opts: HttpOption<T>): AsyncData<ResOptions<T>, F
           data: _context.response._data?.err
         })
       }
-      _context.response._data = _context.response._data?.data
     },
     // Error interception
     onResponseError({ response, options: { method } }) {
