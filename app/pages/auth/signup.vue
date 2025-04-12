@@ -2,8 +2,13 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+const { t } = useI18n()
+
 definePageMeta({
-  layout: 'auth'
+  layout: 'auth',
+  auth: {
+    unauthenticatedOnly: true
+  }
 })
 
 useSeoMeta({
@@ -13,20 +18,20 @@ useSeoMeta({
 const toast = useToast()
 
 const fields = [{
-  name: 'name',
+  name: 'nickname',
   type: 'text' as const,
-  label: 'Name',
-  placeholder: 'Enter your name'
+  label: t('Nickname'),
+  placeholder: t('NicknamePlaceholder')
 }, {
   name: 'email',
   type: 'text' as const,
-  label: 'Email',
-  placeholder: 'Enter your email'
+  label: t('Email'),
+  placeholder: t('EmailPlaceholder')
 }, {
   name: 'password',
-  label: 'Password',
+  label: t('Password'),
   type: 'password' as const,
-  placeholder: 'Enter your password'
+  placeholder: t('PasswordPlaceholder')
 }]
 
 const providers = [{
@@ -61,22 +66,22 @@ function onSubmit(payload: FormSubmitEvent<Schema>) {
     :fields="fields"
     :schema="schema"
     :providers="providers"
-    title="Create an account"
-    :submit="{ label: 'Create account' }"
+    :title="t('CreateAnAccount')"
+    :submit="{ label: t('CreateAccount') }"
     @submit="onSubmit"
   >
     <template #description>
-      Already have an account? <ULink
+      {{ t('AlreadyHaveAnAccount') }}? <ULink
         to="/auth/login"
         class="text-primary-500 font-medium"
-      >Login</ULink>.
+      >{{ t('Login') }}</ULink>.
     </template>
 
     <template #footer>
-      By signing up, you agree to our <ULink
+      {{ t('SignUp') }}{{ t('TermsOfServiceTips') }} <ULink
         to="/public"
         class="text-primary-500 font-medium"
-      >Terms of Service</ULink>.
+      >{{ t('TermsOfService') }}</ULink>
     </template>
   </UAuthForm>
 </template>

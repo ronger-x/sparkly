@@ -2,43 +2,45 @@
 const route = useRoute()
 const toast = useToast()
 
+const { t } = useI18n()
+
 const links = [[{
-  label: 'Home',
+  label: t('Home'),
   icon: 'i-lucide-house',
   to: '/'
 }, {
-  label: 'Inbox',
+  label: t('Inbox'),
   icon: 'i-lucide-inbox',
   to: '/inbox',
   badge: '4'
 }, {
-  label: 'Users',
+  label: t('Users'),
   icon: 'i-lucide-users',
   to: '/users'
 }, {
-  label: 'Systems',
+  label: t('Systems'),
   to: '/systems',
   icon: 'i-lucide-settings',
   defaultOpen: true,
   children: [{
-    label: 'Dictionaries',
+    label: t('Dictionaries'),
     to: '/dictionaries',
     exact: true
   }]
 }, {
-  label: 'Settings',
+  label: t('Settings'),
   to: '/settings',
   icon: 'i-lucide-settings',
   defaultOpen: true,
   children: [{
-    label: 'General',
+    label: t('General'),
     to: '/settings',
     exact: true
   }, {
-    label: 'Notifications',
+    label: t('Notifications'),
     to: '/settings/notifications'
   }, {
-    label: 'Security',
+    label: t('Security'),
     to: '/settings/security'
   }]
 }]]

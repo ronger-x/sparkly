@@ -3,13 +3,19 @@ import type { AvatarProps } from '@nuxt/ui'
 export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced'
 export type SaleStatus = 'paid' | 'failed' | 'refunded'
 
+export interface DictInfo {
+  label: string
+  value: string
+  color: string
+}
+
 export interface User {
   id: number
   account: string
   nickname: string
   email: string
   avatar?: AvatarProps
-  status: UserStatus
+  status: string | DictInfo
   location: string
 }
 
@@ -68,7 +74,7 @@ export interface DictType {
   label: string
   sortNo: number
   description: string
-  status: Status
+  status: string | DictInfo
   createdTime: string
 }
 
@@ -79,7 +85,7 @@ export interface Dict {
   value: string
   sortNo: number
   description: string
-  status: Status
+  status: string | DictInfo
   createdTime: string
 }
 

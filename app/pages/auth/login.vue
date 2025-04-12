@@ -2,6 +2,8 @@
 import * as z from 'zod'
 import type { FormSubmitEvent } from '@nuxt/ui'
 
+const { t } = useI18n()
+
 definePageMeta({
   layout: 'auth',
   auth: {
@@ -18,17 +20,18 @@ const toast = useToast()
 const fields = [{
   name: 'account',
   type: 'text' as const,
-  label: 'Email',
-  placeholder: 'Enter your email',
+  label: t('Email'),
+  placeholder: t('EmailPlaceholder'),
   required: true
 }, {
   name: 'password',
-  label: 'Password',
+  label: t('Password'),
   type: 'password' as const,
-  placeholder: 'Enter your password'
+  placeholder: t('PasswordPlaceholder'),
+  required: true
 }, {
   name: 'remember',
-  label: 'Remember me',
+  label: t('RememberMe'),
   type: 'checkbox' as const
 }]
 
@@ -43,8 +46,8 @@ const providers = [{
 const { signIn } = useAuth()
 
 const schema = z.object({
-  account: z.string().email('Invalid email'),
-  password: z.string().min(8, 'Must be at least 8 characters')
+  account: z.string().email(t('InvalidEmail')),
+  password: z.string().min(8, t('PasswordTooShort'))
 })
 
 type Schema = z.output<typeof schema>
@@ -55,7 +58,7 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     await signIn({ account, password }, { callbackUrl: useRoute().query.redirect as string ?? '/', external: true })
   } catch (error) {
     console.error(error)
-    toast.add({ title: 'Login failed', description: 'Invalid credentials' })
+    toast.add({ title: t('LoginFailed'), description: t('InvalidCredentials') })
   }
 }
 </script>
@@ -65,29 +68,30 @@ async function onSubmit(payload: FormSubmitEvent<Schema>) {
     :fields="fields"
     :schema="schema"
     :providers="providers"
-    title="Welcome back"
+    :title="t('WelcomeBack')"
     icon="i-lucide-lock"
+    :submit="{ label: t('Login') }"
     @submit="onSubmit"
   >
     <template #description>
-      Don't have an account? <ULink
+      {{ t('DontHaveAnAccount') }}? <ULink
         to="/auth/signup"
         class="text-primary-500 font-medium"
-      >Sign up</ULink>.
+      >{{ t('SignUp') }}</ULink>
     </template>
 
     <template #password-hint>
       <ULink
         to="/auth/forgot-password"
         class="text-primary-500 font-medium"
-      >Forgot password?</ULink>
+      >{{ t('ForgotPassword') }}?</ULink>
     </template>
 
     <template #footer>
-      By signing in, you agree to our <ULink
+      {{ t('Login') }}{{ t('TermsOfServiceTips') }} <ULink
         to="/public"
         class="text-primary-500 font-medium"
-      >Terms of Service</ULink>.
+      >{{ t('TermsOfService') }}</ULink>
     </template>
   </UAuthForm>
 </template>

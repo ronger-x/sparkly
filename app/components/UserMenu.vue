@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import type { DropdownMenuItem } from '@nuxt/ui'
 
+const { t } = useI18n()
+
 defineProps<{
   collapsed?: boolean
 }>()
@@ -26,14 +28,14 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
   label: user.value.name,
   avatar: user.value.avatar
 }], [{
-  label: 'Profile',
+  label: t('Profile'),
   icon: 'i-lucide-user',
   to: '/settings'
 }, {
-  label: 'Billing',
+  label: t('Billing'),
   icon: 'i-lucide-credit-card'
 }], [{
-  label: 'Theme',
+  label: t('Theme'),
   icon: 'i-lucide-palette',
   children: [{
     label: 'Primary',
@@ -77,10 +79,10 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     }))
   }]
 }, {
-  label: 'Appearance',
+  label: t('Appearance'),
   icon: 'i-lucide-sun-moon',
   children: [{
-    label: 'Light',
+    label: t('Light'),
     icon: 'i-lucide-sun',
     type: 'checkbox',
     checked: colorMode.value === 'light',
@@ -90,7 +92,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
       colorMode.preference = 'light'
     }
   }, {
-    label: 'Dark',
+    label: t('Dark'),
     icon: 'i-lucide-moon',
     type: 'checkbox',
     checked: colorMode.value === 'dark',
@@ -104,7 +106,7 @@ const items = computed<DropdownMenuItem[][]>(() => ([[{
     }
   }]
 }], [{
-  label: 'Log out',
+  label: t('LoginOut'),
   icon: 'i-lucide-log-out',
   onSelect() {
     useAuth().signOut()

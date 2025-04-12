@@ -4,9 +4,11 @@ import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
 import type { DictType, PageInfo } from '~/types'
 
+const { t } = useI18n()
+
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
-const UDropdownMenu = resolveComponent('UDropdownMenu')
+const UButtonGroup = resolveComponent('UButtonGroup')
 const UCheckbox = resolveComponent('UCheckbox')
 
 const toast = useToast()
@@ -26,47 +28,6 @@ const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-typ
 const page = computed(() => {
   return data.value?.data || { records: [] }
 })
-
-function getRowItems(row: Row<DictType>) {
-  return [
-    {
-      type: 'label',
-      label: 'Actions'
-    },
-    {
-      label: 'Copy dict ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'User ID copied to clipboard'
-        })
-      }
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'View dict details',
-      icon: 'i-lucide-list'
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'Delete dict',
-      icon: 'i-lucide-trash',
-      color: 'error',
-      onSelect() {
-        toast.add({
-          title: 'User deleted',
-          description: 'The dict has been deleted.'
-        })
-      }
-    }
-  ]
-}
 
 const columns: TableColumn<DictType>[] = [
   {
@@ -89,54 +50,65 @@ const columns: TableColumn<DictType>[] = [
   },
   {
     accessorKey: 'label',
-    header: 'Label'
+    header: t('Label')
   },
   {
     accessorKey: 'typeCode',
-    header: 'TypeCode',
+    header: t('Code'),
     cell: ({ row }) => row.original.typeCode
   },
   {
     accessorKey: 'status',
-    header: 'Status',
+    header: t('Status'),
     filterFn: 'equals',
     cell: ({ row }) => {
-      const color = {
-        subscribed: 'success' as const,
-        unsubscribed: 'error' as const,
-        bounced: 'warning' as const
-      }[row.original.status]
-
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.original.status
+      return h(UBadge, { class: 'capitalize', variant: 'subtle' }, () =>
+        typeof row.original.status === 'string'
+          ? row.original.status
+          : row.original.status?.label
       )
     }
   },
   {
     accessorKey: 'createdTime',
-    header: 'Created Time'
+    header: t('CreatedTime')
   },
   {
     id: 'actions',
+    header: t('Actions'),
     cell: ({ row }) => {
       return h(
         'div',
-        { class: 'text-right' },
         h(
-          UDropdownMenu,
+          UButtonGroup,
           {
             content: {
               align: 'end'
-            },
-            items: getRowItems(row)
+            }
           },
           () =>
-            h(UButton, {
-              icon: 'i-lucide-ellipsis-vertical',
-              color: 'neutral',
-              variant: 'ghost',
-              class: 'ml-auto'
-            })
+            [
+              h(UButton, {
+                icon: 'i-lucide-square-pen',
+                color: 'neutral',
+                variant: 'ghost',
+                class: 'ml-auto',
+                label: t('Edit'),
+                onClick: () => {
+                  console.log(row.original)
+                }
+              }),
+              h(UButton, {
+                icon: 'i-lucide-wrench',
+                color: 'neutral',
+                variant: 'ghost',
+                class: 'ml-auto',
+                label: t('Config'),
+                onClick: () => {
+                  console.log(row.original)
+                }
+              })
+            ]
         )
       )
     }

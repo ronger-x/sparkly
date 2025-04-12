@@ -141,14 +141,10 @@ const columns: TableColumn<User>[] = [
     header: 'Status',
     filterFn: 'equals',
     cell: ({ row }) => {
-      const color = {
-        subscribed: 'success' as const,
-        unsubscribed: 'error' as const,
-        bounced: 'warning' as const
-      }[row.original.status]
-
-      return h(UBadge, { class: 'capitalize', variant: 'subtle', color }, () =>
-        row.original.status
+      return h(UBadge, { class: 'capitalize', variant: 'subtle' }, () =>
+        typeof row.original.status === 'string'
+          ? row.original.status
+          : row.original.status?.label
       )
     }
   },
