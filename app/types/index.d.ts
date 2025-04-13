@@ -1,7 +1,12 @@
-import type { AvatarProps } from '@nuxt/ui'
+import type { AvatarProps, SelectItem } from '@nuxt/ui'
 
 export type UserStatus = 'subscribed' | 'unsubscribed' | 'bounced'
 export type SaleStatus = 'paid' | 'failed' | 'refunded'
+
+export interface BaseOption extends SelectItem {
+  label: string
+  value: string
+}
 
 export interface DictInfo {
   label: string

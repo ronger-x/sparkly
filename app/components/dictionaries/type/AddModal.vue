@@ -6,7 +6,7 @@ const { t } = useI18n()
 
 const schema = z.object({
   label: z.string().min(2, 'Too short'),
-  value: z.string(),
+  typeCode: z.string(),
   sortNo: z.number()
 })
 const open = ref(false)
@@ -15,20 +15,26 @@ type Schema = z.output<typeof schema>
 
 const state = reactive<Partial<Schema>>({
   label: undefined,
-  value: undefined,
-  sortNo: undefined
+  typeCode: undefined,
+  sortNo: 50
 })
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  toast.add({ title: 'Success', description: `New dict ${event.data.label} added`, color: 'success' })
-  open.value = false
+  const { data, status } = await useAuthFetch('/admin/dict-type/post', {
+    method: 'POST',
+    body: event.data
+  })
+  if (status === 'success' && data.data) {
+    toast.add({ title: 'Success', description: `${t('NewDictType')} ${event.data.label} ${t('Success')}`, color: 'success' })
+    open.value = false
+  }
 }
 </script>
 
 <template>
-  <UModal v-model:open="open" :title="t('NewDict')" :description="t('AddNewDict')">
-    <UButton :label="t('NewDict')" icon="i-lucide-plus" />
+  <UModal v-model:open="open" :title="t('NewDictType')" :description="t('AddNewDictType')">
+    <UButton :label="t('NewDictType')" icon="i-lucide-plus" />
 
     <template #body>
       <UForm
@@ -37,14 +43,14 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         class="space-y-4"
         @submit="onSubmit"
       >
-        <UFormField :label="t('Label')" :placeholder="t('Enabled')" name="label">
+        <UFormField :label="t('Label')" :placeholder="t('Status')" name="label">
           <UInput v-model="state.label" class="w-full" />
         </UFormField>
-        <UFormField :label="t('Value')" placeholder="1" name="value">
-          <UInput v-model="state.value" class="w-full" />
+        <UFormField :label="t('Code')" placeholder="1" name="typeCode">
+          <UInput v-model="state.typeCode" class="w-full" />
         </UFormField>
-        <UFormField :label="t('SortNo')" placeholder="1" name="sortNo">
-          <UInput v-model="state.sortNo" class="w-full" />
+        <UFormField :label="t('SortNo')" placeholder="50" name="sortNo">
+          <UInputNumber v-model="state.sortNo" class="w-full" />
         </UFormField>
         <div class="flex justify-end gap-2">
           <UButton

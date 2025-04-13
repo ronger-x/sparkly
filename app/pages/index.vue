@@ -2,6 +2,8 @@
 import { sub } from 'date-fns'
 import type { Period, Range } from '~/types'
 
+const { t } = useI18n()
+
 const { isNotificationsSlideoverOpen } = useDashboard()
 
 const items = [[{
@@ -24,13 +26,13 @@ const period = ref<Period>('daily')
 <template>
   <UDashboardPanel id="home">
     <template #header>
-      <UDashboardNavbar title="Home" :ui="{ right: 'gap-3' }">
+      <UDashboardNavbar :title="t('Home')" :ui="{ right: 'gap-3' }">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
         <template #right>
-          <UTooltip text="Notifications" :shortcuts="['N']">
+          <UTooltip :text="t('Notifications')" :shortcuts="['N']">
             <UButton
               color="neutral"
               variant="ghost"

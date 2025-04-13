@@ -7,7 +7,8 @@ import type { KeysOf } from '#app/composables/asyncData'
 type UrlType = string | Request | Ref<string | Request> | (() => string | Request)
 
 type HttpOption<T> = UseFetchOptions<ResOptions<T>, T, KeysOf<T>, any>
-interface ResOptions<T> {
+
+export interface ResOptions<T> {
   data: T
   code: number
   message: boolean

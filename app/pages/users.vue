@@ -2,7 +2,9 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-import type { PageInfo, User } from '~/types'
+import type { DictInfo, PageInfo, User } from '~/types'
+
+const { t } = useI18n()
 
 const UAvatar = resolveComponent('UAvatar')
 const UButton = resolveComponent('UButton')
@@ -20,6 +22,12 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref()
 
+const StatusOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Disabled', value: '0' },
+  { label: 'Enabled', value: '1' }
+]
+
 const { data, status } = await useAuthFetch<PageInfo<User>>('/admin/users', {
   lazy: true
 })
@@ -32,7 +40,7 @@ function getRowItems(row: Row<User>) {
   return [
     {
       type: 'label',
-      label: 'Actions'
+      label: t('Actions')
     },
     {
       label: 'Copy user ID',
@@ -94,11 +102,11 @@ const columns: TableColumn<User>[] = [
   },
   {
     accessorKey: 'account',
-    header: 'Account'
+    header: t('Account')
   },
   {
     accessorKey: 'nickname',
-    header: 'Nickname',
+    header: t('Nickname'),
     cell: ({ row }) => {
       return h('div', { class: 'flex items-center gap-3' }, [
         h(UAvatar, {
@@ -120,7 +128,7 @@ const columns: TableColumn<User>[] = [
       return h(UButton, {
         color: 'neutral',
         variant: 'ghost',
-        label: 'Email',
+        label: t('Email'),
         icon: isSorted
           ? isSorted === 'asc'
             ? 'i-lucide-arrow-up-narrow-wide'
@@ -133,13 +141,16 @@ const columns: TableColumn<User>[] = [
   },
   {
     accessorKey: 'location',
-    header: 'Location',
+    header: t('Location'),
     cell: ({ row }) => row.original.location
   },
   {
     accessorKey: 'status',
-    header: 'Status',
-    filterFn: 'equals',
+    header: t('Status'),
+    filterFn: (row, column, filterValue) => {
+      const status = row.original.status as DictInfo
+      return status.value === filterValue
+    },
     cell: ({ row }) => {
       return h(UBadge, { class: 'capitalize', variant: 'subtle' }, () =>
         typeof row.original.status === 'string'
@@ -150,10 +161,11 @@ const columns: TableColumn<User>[] = [
   },
   {
     accessorKey: 'lastLoginTime',
-    header: 'Last Login Time'
+    header: t('LastLoginTime')
   },
   {
     id: 'actions',
+    header: t('Actions'),
     cell: ({ row }) => {
       return h(
         'div',
@@ -203,7 +215,7 @@ const pagination = ref({
 <template>
   <UDashboardPanel id="users">
     <template #header>
-      <UDashboardNavbar title="Users">
+      <UDashboardNavbar :title="t('Users')">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
@@ -220,7 +232,7 @@ const pagination = ref({
           :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter emails..."
+          :placeholder="t('FilterEmails')"
           @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
         />
 
@@ -243,14 +255,9 @@ const pagination = ref({
 
           <USelect
             v-model="statusFilter"
-            :items="[
-              { label: 'All', value: 'all' },
-              { label: 'Subscribed', value: 'subscribed' },
-              { label: 'Unsubscribed', value: 'unsubscribed' },
-              { label: 'Bounced', value: 'bounced' }
-            ]"
+            :items="StatusOptions"
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-            placeholder="Filter status"
+            :placeholder="t('FilterStatus')"
             class="min-w-28"
           />
           <UDropdownMenu

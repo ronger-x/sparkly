@@ -1,0 +1,11 @@
+{
+  "NewDictType": "New dict type",
+  "AddNewDictType": "Add a new dict type to the database",
+  "NewDict": "New dict",
+  "AddNewDict": "Add a new dict to the database",
+  "DictType": "Dict type",
+  "UpdateDictType": "Update dict type",
+  "UpdateDictTypeDescription": "Update dict type information",
+  "UpdateDict": "Update dict",
+  "UpdateDictDescription": "Update dict information"
+}

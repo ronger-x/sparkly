@@ -1,0 +1,19 @@
+{
+  "Home": "Home",
+  "Dashboard": "Dashboard",
+  "Inbox": "Inbox",
+  "Users": "Users",
+  "Systems": "Systems",
+  "Dictionaries": "Dictionaries",
+  "Settings": "Settings",
+  "General": "General",
+  "Notifications": "Notifications",
+  "Security": "Security",
+  "Profile": "Profile",
+  "Billing": "Billing",
+  "Theme": "Theme",
+  "Appearance": "Appearance",
+  "Light": "Light",
+  "Dark": "Dark",
+  "LoginOut": "Sign out"
+}

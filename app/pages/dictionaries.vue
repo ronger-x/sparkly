@@ -2,7 +2,7 @@
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
 import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-import type { DictType, PageInfo } from '~/types'
+import type { DictInfo, DictType, PageInfo } from '~/types'
 
 const { t } = useI18n()
 
@@ -20,6 +20,12 @@ const columnFilters = ref([{
 }])
 const columnVisibility = ref()
 const rowSelection = ref()
+
+const StatusOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Disabled', value: '0' },
+  { label: 'Enabled', value: '1' }
+]
 
 const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
   lazy: true
@@ -60,7 +66,10 @@ const columns: TableColumn<DictType>[] = [
   {
     accessorKey: 'status',
     header: t('Status'),
-    filterFn: 'equals',
+    filterFn: (row, column, filterValue) => {
+      const status = row.original.status as DictInfo
+      return status.value === filterValue
+    },
     cell: ({ row }) => {
       return h(UBadge, { class: 'capitalize', variant: 'subtle' }, () =>
         typeof row.original.status === 'string'
@@ -139,13 +148,13 @@ const pagination = ref({
 <template>
   <UDashboardPanel id="dictionaries">
     <template #header>
-      <UDashboardNavbar title="Dictionaries">
+      <UDashboardNavbar :title="t('Dictionaries')">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
         <template #right>
-          <DictionariesAddModal />
+          <DictionariesTypeAddModal />
         </template>
       </UDashboardNavbar>
     </template>
@@ -156,15 +165,15 @@ const pagination = ref({
           :model-value="(table?.tableApi?.getColumn('label')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          placeholder="Filter labels..."
+          :placeholder="t('FilterLabels')"
           @update:model-value="table?.tableApi?.getColumn('label')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <DictionariesDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length">
+          <DictionariesTypeDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length" :items="table?.tableApi?.getFilteredSelectedRowModel().rows">
             <UButton
               v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
-              label="Delete"
+              :label="t('Delete')"
               color="error"
               variant="subtle"
               icon="i-lucide-trash"
@@ -175,18 +184,13 @@ const pagination = ref({
                 </UKbd>
               </template>
             </UButton>
-          </DictionariesDeleteModal>
+          </DictionariesTypeDeleteModal>
 
           <USelect
             v-model="statusFilter"
-            :items="[
-              { label: 'All', value: 'all' },
-              { label: 'Subscribed', value: 'subscribed' },
-              { label: 'Unsubscribed', value: 'unsubscribed' },
-              { label: 'Bounced', value: 'bounced' }
-            ]"
+            :items="StatusOptions"
             :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
-            placeholder="Filter status"
+            :placeholder="t('FilterStatus')"
             class="min-w-28"
           />
           <UDropdownMenu

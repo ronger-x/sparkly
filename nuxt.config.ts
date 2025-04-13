@@ -106,11 +106,11 @@ export default defineNuxtConfig({
     locales: [{
       code: 'zh-CN',
       name: '简体中文',
-      file: 'zh-CN.json'
+      files: ['zh-CN.json', 'zh-CN/auth.json', 'zh-CN/menus.json', 'zh-CN/dictionaries.json', 'zh-CN/home.json', 'zh-CN/notifications.json', 'zh-CN/profile.json', 'zh-CN/security.json', 'zh-CN/settings.json', 'zh-CN/user.json']
     }, {
       code: 'en',
       name: 'English',
-      file: 'en.json'
+      files: ['en.json', 'en/auth.json', 'en/menus.json', 'en/dictionaries.json', 'en/home.json', 'en/notifications.json', 'en/profile.json', 'en/security.json', 'en/settings.json', 'en/user.json']
     }],
     detectBrowserLanguage: {
       useCookie: true,
