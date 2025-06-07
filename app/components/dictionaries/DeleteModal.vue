@@ -1,23 +1,37 @@
 <script setup lang="ts">
-withDefaults(defineProps<{
+import type { Row } from '@tanstack/table-core'
+import type { Dict } from '~/types'
+
+const props = withDefaults(defineProps<{
   count?: number
+  items?: Row<Dict>[]
 }>(), {
-  count: 0
+  count: 0,
+  items: null
 })
+
+const { t } = useI18n()
 
 const open = ref(false)
 
 async function onSubmit() {
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  open.value = false
+  const { data, status } = await useAuthFetch('/admin/dict/batch-update-del-flag', {
+    method: 'PATCH',
+    body: {
+      ids: props.items?.map(item => item.original.id)
+    }
+  })
+  if (status.value === 'success' && data.value.data) {
+    open.value = false
+  }
 }
 </script>
 
 <template>
   <UModal
     v-model:open="open"
-    :title="`Delete ${count} user${count > 1 ? 's' : ''}`"
-    :description="`Are you sure, this action cannot be undone.`"
+    :title="`${t('Delete')} ${count} ${t('Dict')}`"
+    :description="t('DeleteTips')"
   >
     <slot />
 

@@ -21,7 +21,7 @@ async function onSubmit() {
       ids: props.items?.map(item => item.original.id)
     }
   })
-  if (status === 'success' && data.data) {
+  if (status.value === 'success' && data.value.data) {
     open.value = false
   }
 }

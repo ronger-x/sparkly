@@ -26,13 +26,20 @@ const StatusOptions = [
   { label: 'Enabled', value: '1' }
 ]
 
-const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
-  lazy: true
+let page = reactive<Partial<PageInfo<DictType>>>({
+  records: undefined
 })
 
-const page = computed(() => {
-  return data.value?.data || { records: [] }
-})
+const loadStatus = ref()
+
+const loadData = async () => {
+  const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
+    lazy: true
+  })
+  page = data.value?.data || { records: [] }
+  loadStatus.value = status
+  rowSelection.value = []
+}
 
 const editModal = ref({
   item: null,
@@ -158,6 +165,10 @@ const pagination = ref({
   pageIndex: 0,
   pageSize: 10
 })
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <template>
@@ -169,8 +180,8 @@ const pagination = ref({
         </template>
 
         <template #right>
-          <DictionariesTypeAddModal />
-          <DictionariesTypeEditModal :item="editModal.item" :time="editModal.time" />
+          <DictionariesTypeAddModal @success="loadData" />
+          <DictionariesTypeEditModal :item="editModal.item" :time="editModal.time" @success="loadData" />
           <DictionariesItems :item="itemDrawer.item" :time="itemDrawer.time" />
         </template>
       </UDashboardNavbar>
@@ -251,7 +262,7 @@ const pagination = ref({
         class="shrink-0"
         :data="page.records"
         :columns="columns"
-        :loading="status === 'pending'"
+        :loading="loadStatus === 'pending'"
         :ui="{
           base: 'table-fixed border-separate border-spacing-0',
           thead: '[&>tr]:bg-(--ui-bg-elevated)/50 [&>tr]:after:content-none',

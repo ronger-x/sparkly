@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
+import { upperFirst } from 'scule'
 import { getPaginationRowModel } from '@tanstack/table-core'
 import type { Dict, DictInfo, DictType, PageInfo } from '~/types'
 
@@ -17,6 +18,12 @@ const columnFilters = ref([{
 }])
 const columnVisibility = ref()
 const rowSelection = ref()
+
+const StatusOptions = [
+  { label: 'All', value: 'all' },
+  { label: 'Disabled', value: '0' },
+  { label: 'Enabled', value: '1' }
+]
 
 const dictType = reactive<Partial<DictType>>({
   label: undefined,
@@ -163,6 +170,21 @@ watch(() => props.time, (item) => {
   loadData()
 })
 
+const statusFilter = ref('all')
+
+watch(() => statusFilter.value, (newVal) => {
+  if (!table?.value?.tableApi) return
+
+  const statusColumn = table.value.tableApi.getColumn('status')
+  if (!statusColumn) return
+
+  if (newVal === 'all') {
+    statusColumn.setFilterValue(undefined)
+  } else {
+    statusColumn.setFilterValue(newVal)
+  }
+})
+
 const pagination = ref({
   pageIndex: 0,
   pageSize: 10
@@ -189,6 +211,68 @@ const pagination = ref({
         </template>
 
         <template #body>
+          <div class="flex flex-wrap items-center justify-between gap-1.5">
+            <UInput
+              :model-value="(table?.tableApi?.getColumn('label')?.getFilterValue() as string)"
+              class="max-w-sm"
+              icon="i-lucide-search"
+              :placeholder="t('FilterLabels')"
+              @update:model-value="table?.tableApi?.getColumn('label')?.setFilterValue($event)"
+            />
+
+            <div class="flex flex-wrap items-center gap-1.5">
+              <DictionariesDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length" :items="table?.tableApi?.getFilteredSelectedRowModel().rows">
+                <UButton
+                  v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+                  :label="t('Delete')"
+                  color="error"
+                  variant="subtle"
+                  icon="i-lucide-trash"
+                >
+                  <template #trailing>
+                    <UKbd>
+                      {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
+                    </UKbd>
+                  </template>
+                </UButton>
+              </DictionariesDeleteModal>
+
+              <USelect
+                v-model="statusFilter"
+                :items="StatusOptions"
+                :ui="{ trailingIcon: 'group-data-[state=open]:rotate-180 transition-transform duration-200' }"
+                :placeholder="t('FilterStatus')"
+                class="min-w-28"
+              />
+              <UDropdownMenu
+                :items="
+                  table?.tableApi
+                    ?.getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => ({
+                      label: upperFirst(column.id),
+                      type: 'checkbox' as const,
+                      checked: column.getIsVisible(),
+                      onUpdateChecked(checked: boolean) {
+                        table?.tableApi?.getColumn(column.id)?.toggleVisibility(!!checked)
+                      },
+                      onSelect(e?: Event) {
+                        e?.preventDefault()
+                      }
+                    }))
+                "
+                :content="{ align: 'end' }"
+              >
+                <UButton
+                  label="Display"
+                  color="neutral"
+                  variant="outline"
+                  trailing-icon="i-lucide-settings-2"
+                />
+              </UDropdownMenu>
+            </div>
+          </div>
+
           <UTable
             ref="table"
             v-model:column-filters="columnFilters"
