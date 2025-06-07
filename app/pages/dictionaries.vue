@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
-import { getPaginationRowModel, type Row } from '@tanstack/table-core'
+import { getPaginationRowModel } from '@tanstack/table-core'
 import type { DictInfo, DictType, PageInfo } from '~/types'
 
 const { t } = useI18n()
@@ -11,7 +11,6 @@ const UBadge = resolveComponent('UBadge')
 const UButtonGroup = resolveComponent('UButtonGroup')
 const UCheckbox = resolveComponent('UCheckbox')
 
-const toast = useToast()
 const table = useTemplateRef('table')
 
 const columnFilters = ref([{
@@ -33,6 +32,16 @@ const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-typ
 
 const page = computed(() => {
   return data.value?.data || { records: [] }
+})
+
+const editModal = ref({
+  item: null,
+  time: new Date().getTime()
+})
+
+const itemDrawer = ref({
+  item: null,
+  time: new Date().getTime()
 })
 
 const columns: TableColumn<DictType>[] = [
@@ -104,7 +113,10 @@ const columns: TableColumn<DictType>[] = [
                 class: 'ml-auto',
                 label: t('Edit'),
                 onClick: () => {
-                  console.log(row.original)
+                  editModal.value = {
+                    item: row.original,
+                    time: new Date().getTime()
+                  }
                 }
               }),
               h(UButton, {
@@ -114,7 +126,10 @@ const columns: TableColumn<DictType>[] = [
                 class: 'ml-auto',
                 label: t('Config'),
                 onClick: () => {
-                  console.log(row.original)
+                  itemDrawer.value = {
+                    item: row.original,
+                    time: new Date().getTime()
+                  }
                 }
               })
             ]
@@ -155,6 +170,8 @@ const pagination = ref({
 
         <template #right>
           <DictionariesTypeAddModal />
+          <DictionariesTypeEditModal :item="editModal.item" :time="editModal.time" />
+          <DictionariesItems :item="itemDrawer.item" :time="itemDrawer.time" />
         </template>
       </UDashboardNavbar>
     </template>

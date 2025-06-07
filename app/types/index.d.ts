@@ -12,6 +12,8 @@ export interface DictInfo {
   label: string
   value: string
   color: string
+  icon: string
+  image: string
 }
 
 export interface User {
@@ -88,6 +90,9 @@ export interface Dict {
   dictTypeCode: string
   label: string
   value: string
+  color: string
+  icon: string
+  image: string
   sortNo: number
   description: string
   status: string | DictInfo
@@ -100,4 +105,10 @@ export interface PageInfo<T> {
   size: number
   current: number
   pages: number
+}
+
+export interface ResultInfo<T> {
+  code: number
+  data: T
+  message: string
 }

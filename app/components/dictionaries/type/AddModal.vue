@@ -4,6 +4,8 @@ import type { FormSubmitEvent } from '@nuxt/ui'
 
 const { t } = useI18n()
 
+const emits = defineEmits(['success'])
+
 const schema = z.object({
   label: z.string().min(2, 'Too short'),
   typeCode: z.string(),
@@ -25,9 +27,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
     method: 'POST',
     body: event.data
   })
-  if (status === 'success' && data.data) {
+  if (status.value === 'success' && data.value.data) {
     toast.add({ title: 'Success', description: `${t('NewDictType')} ${event.data.label} ${t('Success')}`, color: 'success' })
     open.value = false
+    emits('success')
   }
 }
 </script>
