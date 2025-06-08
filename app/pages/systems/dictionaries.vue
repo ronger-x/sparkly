@@ -166,7 +166,7 @@ const pagination = ref({
   pageSize: 10
 })
 
-onMounted(() => {
+nextTick(() => {
   loadData()
 })
 </script>

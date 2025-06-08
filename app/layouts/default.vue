@@ -20,11 +20,11 @@ const links = [[{
 }, {
   label: t('Systems'),
   to: '/systems',
-  icon: 'i-lucide-settings',
+  icon: 'i-lucide-settings-2',
   defaultOpen: true,
   children: [{
     label: t('Dictionaries'),
-    to: '/dictionaries',
+    to: '/systems/dictionaries',
     exact: true
   }]
 }, {

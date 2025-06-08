@@ -75,10 +75,10 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         @submit="onSubmit"
       >
         <UFormField :label="t('Label')" :placeholder="t('Status')" name="label">
-          <UInput v-model="state.label" class="w-full" />
+          <UInput v-model="state.label" class="w-full" disabled />
         </UFormField>
         <UFormField :label="t('Code')" placeholder="1" name="typeCode">
-          <UInput v-model="state.typeCode" class="w-full" />
+          <UInput v-model="state.typeCode" class="w-full" disabled />
         </UFormField>
         <UFormField :label="t('SortNo')" placeholder="50" name="sortNo">
           <UInputNumber v-model="state.sortNo" class="w-full" />
