@@ -6,6 +6,20 @@ import type { DictInfo, DictType, PageInfo } from '~/types'
 
 const { t } = useI18n()
 
+// init
+const editModalKey = ref(0)
+
+const editModal = ref({
+  item: null
+})
+
+const itemDrawerKey = ref(0)
+
+const itemDrawer = ref({
+  item: null
+})
+
+// init table
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
 const UButtonGroup = resolveComponent('UButtonGroup')
@@ -26,29 +40,15 @@ const StatusOptions = [
   { label: 'Enabled', value: '1' }
 ]
 
-let page = reactive<Partial<PageInfo<DictType>>>({
-  records: undefined
+const selectedRows = computed(() => table.value?.tableApi?.getFilteredSelectedRowModel().rows || [])
+const filteredRows = computed(() => table.value?.tableApi?.getFilteredRowModel().rows || [])
+
+const { data, status, refresh } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
+  lazy: false
 })
 
-const loadStatus = ref()
-
-const loadData = async () => {
-  const { data, status } = await useAuthFetch<PageInfo<DictType>>('/admin/dict-type/list', {
-    lazy: true
-  })
-  page = data.value?.data || { records: [] }
-  loadStatus.value = status
-  rowSelection.value = []
-}
-
-const editModal = ref({
-  item: null,
-  time: new Date().getTime()
-})
-
-const itemDrawer = ref({
-  item: null,
-  time: new Date().getTime()
+const page = computed(() => {
+  return data.value?.data || { records: [] }
 })
 
 const columns: TableColumn<DictType>[] = [
@@ -121,9 +121,9 @@ const columns: TableColumn<DictType>[] = [
                 label: t('Edit'),
                 onClick: () => {
                   editModal.value = {
-                    item: row.original,
-                    time: new Date().getTime()
+                    item: row.original
                   }
+                  editModalKey.value++
                 }
               }),
               h(UButton, {
@@ -134,9 +134,9 @@ const columns: TableColumn<DictType>[] = [
                 label: t('Config'),
                 onClick: () => {
                   itemDrawer.value = {
-                    item: row.original,
-                    time: new Date().getTime()
+                    item: row.original
                   }
+                  itemDrawerKey.value++
                 }
               })
             ]
@@ -166,9 +166,10 @@ const pagination = ref({
   pageSize: 10
 })
 
-nextTick(() => {
-  loadData()
-})
+const reloadData = async () => {
+  rowSelection.value = []
+  refresh()
+}
 </script>
 
 <template>
@@ -180,9 +181,9 @@ nextTick(() => {
         </template>
 
         <template #right>
-          <DictionariesTypeAddModal @success="loadData" />
-          <DictionariesTypeEditModal :item="editModal.item" :time="editModal.time" @success="loadData" />
-          <DictionariesItems :item="itemDrawer.item" :time="itemDrawer.time" />
+          <DictionariesTypeAddModal @success="reloadData" />
+          <DictionariesTypeEditModal :item="editModal.item" :time="editModalKey" @success="reloadData" />
+          <DictionariesItems :item="itemDrawer.item" :time="itemDrawerKey" />
         </template>
       </UDashboardNavbar>
     </template>
@@ -198,9 +199,9 @@ nextTick(() => {
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <DictionariesTypeDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length" :items="table?.tableApi?.getFilteredSelectedRowModel().rows">
+          <DictionariesTypeDeleteModal :count="selectedRows.length" :items="selectedRows">
             <UButton
-              v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+              v-if="selectedRows.length"
               :label="t('Delete')"
               color="error"
               variant="subtle"
@@ -208,7 +209,7 @@ nextTick(() => {
             >
               <template #trailing>
                 <UKbd>
-                  {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
+                  {{ selectedRows.length }}
                 </UKbd>
               </template>
             </UButton>
@@ -262,7 +263,7 @@ nextTick(() => {
         class="shrink-0"
         :data="page.records"
         :columns="columns"
-        :loading="loadStatus === 'pending'"
+        :loading="status === 'pending'"
         :ui="{
           base: 'table-fixed border-separate border-spacing-0',
           thead: '[&>tr]:bg-(--ui-bg-elevated)/50 [&>tr]:after:content-none',
@@ -274,15 +275,15 @@ nextTick(() => {
 
       <div class="flex items-center justify-between gap-3 border-t border-(--ui-border) pt-4 mt-auto">
         <div class="text-sm text-(--ui-text-muted)">
-          {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-          {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
+          {{ selectedRows.length || 0 }} of
+          {{ filteredRows.length || 0 }} row(s) selected.
         </div>
 
         <div class="flex items-center gap-1.5">
           <UPagination
             :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
             :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-            :total="table?.tableApi?.getFilteredRowModel().rows.length"
+            :total="filteredRows.length"
             @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
           />
         </div>

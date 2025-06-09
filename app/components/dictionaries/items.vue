@@ -25,6 +25,9 @@ const StatusOptions = [
   { label: 'Enabled', value: '1' }
 ]
 
+const selectedRows = computed(() => table.value?.tableApi?.getFilteredSelectedRowModel().rows || [])
+const filteredRows = computed(() => table.value?.tableApi?.getFilteredRowModel().rows || [])
+
 const dictType = reactive<Partial<DictType>>({
   label: undefined,
   id: undefined,
@@ -61,9 +64,10 @@ const props = withDefaults(defineProps<{
 
 const openModal = ref(false)
 
+const editModalKey = ref(0)
+
 const editModal = ref({
-  item: null,
-  time: new Date().getTime()
+  item: null
 })
 
 const columns: TableColumn<Dict>[] = [
@@ -136,9 +140,9 @@ const columns: TableColumn<Dict>[] = [
                 label: t('Edit'),
                 onClick: () => {
                   editModal.value = {
-                    item: row.original,
-                    time: new Date().getTime()
+                    item: row.original
                   }
+                  editModalKey.value++
                 }
               })
             ]
@@ -154,6 +158,7 @@ watch(() => props.item, (item) => {
     dictType.label = props.item.label
     dictType.typeCode = props.item.typeCode
     dictType.description = props.item.description || props.item.label
+    loadData()
   }
 })
 
@@ -167,7 +172,6 @@ watch(() => props.time, (item) => {
     dictType.typeCode = props.item.typeCode
     dictType.description = props.item.description || props.item.label
   }
-  loadData()
 })
 
 const statusFilter = ref('all')
@@ -189,6 +193,10 @@ const pagination = ref({
   pageIndex: 0,
   pageSize: 10
 })
+
+onMounted(() => {
+  loadData()
+})
 </script>
 
 <template>
@@ -205,7 +213,7 @@ const pagination = ref({
           <UDashboardNavbar :title="dictType.label">
             <template #right>
               <DictionariesAddModal :dict-type-code="dictType.typeCode" @success="loadData" />
-              <DictionariesEditModal :item="editModal.item" :time="editModal.time" @success="loadData" />
+              <DictionariesEditModal :item="editModal.item" :time="editModalKey" @success="loadData" />
             </template>
           </UDashboardNavbar>
         </template>
@@ -221,9 +229,9 @@ const pagination = ref({
             />
 
             <div class="flex flex-wrap items-center gap-1.5">
-              <DictionariesDeleteModal :count="table?.tableApi?.getFilteredSelectedRowModel().rows.length" :items="table?.tableApi?.getFilteredSelectedRowModel().rows">
+              <DictionariesDeleteModal :count="selectedRows.length" :items="selectedRows">
                 <UButton
-                  v-if="table?.tableApi?.getFilteredSelectedRowModel().rows.length"
+                  v-if="selectedRows.length"
                   :label="t('Delete')"
                   color="error"
                   variant="subtle"
@@ -231,7 +239,7 @@ const pagination = ref({
                 >
                   <template #trailing>
                     <UKbd>
-                      {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length }}
+                      {{ selectedRows.length }}
                     </UKbd>
                   </template>
                 </UButton>
@@ -297,15 +305,15 @@ const pagination = ref({
 
           <div class="flex items-center justify-between gap-3 border-t border-(--ui-border) pt-4 mt-auto">
             <div class="text-sm text-(--ui-text-muted)">
-              {{ table?.tableApi?.getFilteredSelectedRowModel().rows.length || 0 }} of
-              {{ table?.tableApi?.getFilteredRowModel().rows.length || 0 }} row(s) selected.
+              {{ selectedRows.length || 0 }} of
+              {{ filteredRows.length || 0 }} row(s) selected.
             </div>
 
             <div class="flex items-center gap-1.5">
               <UPagination
                 :default-page="(table?.tableApi?.getState().pagination.pageIndex || 0) + 1"
                 :items-per-page="table?.tableApi?.getState().pagination.pageSize"
-                :total="table?.tableApi?.getFilteredRowModel().rows.length"
+                :total="filteredRows.length"
                 @update:page="(p) => table?.tableApi?.setPageIndex(p - 1)"
               />
             </div>
