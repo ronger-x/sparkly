@@ -110,13 +110,13 @@ async function onSubmit(event: FormSubmitEvent<Schema>) {
         </UFormField>
         <div class="flex justify-end gap-2">
           <UButton
-            label="Cancel"
+            :label="t('Cancel')"
             color="neutral"
             variant="subtle"
             @click="openModal = false"
           />
           <UButton
-            label="Create"
+            :label="t('Update')"
             color="primary"
             variant="solid"
             type="submit"

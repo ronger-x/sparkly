@@ -34,11 +34,7 @@ const columnFilters = ref([{
 const columnVisibility = ref()
 const rowSelection = ref()
 
-const StatusOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'Disabled', value: '0' },
-  { label: 'Enabled', value: '1' }
-]
+const { options: StatusOptions } = useDictOptionsFetch('Status')
 
 const selectedRows = computed(() => table.value?.tableApi?.getFilteredSelectedRowModel().rows || [])
 const filteredRows = computed(() => table.value?.tableApi?.getFilteredRowModel().rows || [])

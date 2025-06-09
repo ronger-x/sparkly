@@ -38,13 +38,13 @@ async function onSubmit() {
     <template #body>
       <div class="flex justify-end gap-2">
         <UButton
-          label="Cancel"
+          :label="t('Cancel')"
           color="neutral"
           variant="subtle"
           @click="open = false"
         />
         <UButton
-          label="Delete"
+          :label="t('Delete')"
           color="error"
           variant="solid"
           loading-auto
