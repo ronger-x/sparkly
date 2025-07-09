@@ -18,6 +18,10 @@ const links = [[{
   icon: 'i-lucide-users',
   to: '/users'
 }, {
+  label: t('Roles'),
+  icon: 'i-lucide-users',
+  to: '/roles'
+}, {
   label: t('Systems'),
   to: '/systems',
   icon: 'i-lucide-settings-2',

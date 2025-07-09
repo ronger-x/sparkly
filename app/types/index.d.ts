@@ -99,6 +99,14 @@ export interface Dict {
   createdTime: string
 }
 
+export interface Role {
+  id: number
+  label: string
+  permission: string
+  status: string | DictInfo
+  createdTime: string
+}
+
 export interface PageInfo<T> {
   records: T[]
   total: number

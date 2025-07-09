@@ -42,7 +42,6 @@ const chip = computed(() => ({ backgroundColor: state.color }))
 
 const toast = useToast()
 async function onSubmit(event: FormSubmitEvent<Schema>) {
-  console.log(event.data)
   const { data, status } = await useAuthFetch('/admin/dict/post', {
     method: 'POST',
     body: event.data

@@ -1,22 +1,28 @@
 <script setup lang="ts">
 import type { TableColumn } from '@nuxt/ui'
 import { upperFirst } from 'scule'
-import { getPaginationRowModel, type Row } from '@tanstack/table-core'
-import type { DictInfo, PageInfo, User } from '~/types'
+import { getPaginationRowModel } from '@tanstack/table-core'
+import type { DictInfo, Role, PageInfo } from '~/types'
 
 const { t } = useI18n()
 
-const UAvatar = resolveComponent('UAvatar')
+// init
+const editModalKey = ref(0)
+
+const editModal = ref({
+  item: null
+})
+
+// init table
 const UButton = resolveComponent('UButton')
 const UBadge = resolveComponent('UBadge')
-const UDropdownMenu = resolveComponent('UDropdownMenu')
+const UButtonGroup = resolveComponent('UButtonGroup')
 const UCheckbox = resolveComponent('UCheckbox')
 
-const toast = useToast()
 const table = useTemplateRef('table')
 
 const columnFilters = ref([{
-  id: 'email',
+  id: 'label',
   value: ''
 }])
 const columnVisibility = ref()
@@ -27,60 +33,15 @@ const { options: StatusOptions } = useDictOptionsFetch('Status')
 const selectedRows = computed(() => table.value?.tableApi?.getFilteredSelectedRowModel().rows || [])
 const filteredRows = computed(() => table.value?.tableApi?.getFilteredRowModel().rows || [])
 
-const { data, status, refresh } = await useAuthFetch<PageInfo<User>>('/admin/users', {
-  lazy: true
+const { data, status, refresh } = await useAuthFetch<PageInfo<Role>>('/admin/roles', {
+  lazy: false
 })
 
 const page = computed(() => {
   return data.value?.data || { records: [] }
 })
 
-function getRowItems(row: Row<User>) {
-  return [
-    {
-      type: 'label',
-      label: t('Actions')
-    },
-    {
-      label: 'Copy user ID',
-      icon: 'i-lucide-copy',
-      onSelect() {
-        navigator.clipboard.writeText(row.original.id.toString())
-        toast.add({
-          title: 'Copied to clipboard',
-          description: 'User ID copied to clipboard'
-        })
-      }
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'View user details',
-      icon: 'i-lucide-list'
-    },
-    {
-      label: 'View user payments',
-      icon: 'i-lucide-wallet'
-    },
-    {
-      type: 'separator'
-    },
-    {
-      label: 'Delete user',
-      icon: 'i-lucide-trash',
-      color: 'error',
-      onSelect() {
-        toast.add({
-          title: 'User deleted',
-          description: 'The user has been deleted.'
-        })
-      }
-    }
-  ]
-}
-
-const columns: TableColumn<User>[] = [
+const columns: TableColumn<Role>[] = [
   {
     id: 'select',
     header: ({ table }) =>
@@ -100,48 +61,13 @@ const columns: TableColumn<User>[] = [
       })
   },
   {
-    accessorKey: 'account',
-    header: t('Account')
+    accessorKey: 'label',
+    header: t('Label')
   },
   {
-    accessorKey: 'nickname',
-    header: t('Nickname'),
-    cell: ({ row }) => {
-      return h('div', { class: 'flex items-center gap-3' }, [
-        h(UAvatar, {
-          ...row.original.avatar,
-          size: 'lg'
-        }),
-        h('div', undefined, [
-          h('p', { class: 'font-medium text-(--ui-text-highlighted)' }, row.original.nickname),
-          h('p', { class: '' }, `@${row.original.nickname}`)
-        ])
-      ])
-    }
-  },
-  {
-    accessorKey: 'email',
-    header: ({ column }) => {
-      const isSorted = column.getIsSorted()
-
-      return h(UButton, {
-        color: 'neutral',
-        variant: 'ghost',
-        label: t('Email'),
-        icon: isSorted
-          ? isSorted === 'asc'
-            ? 'i-lucide-arrow-up-narrow-wide'
-            : 'i-lucide-arrow-down-wide-narrow'
-          : 'i-lucide-arrow-up-down',
-        class: '-mx-2.5',
-        onClick: () => column.toggleSorting(column.getIsSorted() === 'asc')
-      })
-    }
-  },
-  {
-    accessorKey: 'location',
-    header: t('Location'),
-    cell: ({ row }) => row.original.location
+    accessorKey: 'permission',
+    header: t('Permission'),
+    cell: ({ row }) => row.original.permission
   },
   {
     accessorKey: 'status',
@@ -159,8 +85,8 @@ const columns: TableColumn<User>[] = [
     }
   },
   {
-    accessorKey: 'lastLoginTime',
-    header: t('LastLoginTime')
+    accessorKey: 'createdTime',
+    header: t('CreatedTime')
   },
   {
     id: 'actions',
@@ -168,22 +94,29 @@ const columns: TableColumn<User>[] = [
     cell: ({ row }) => {
       return h(
         'div',
-        { class: 'text-right' },
         h(
-          UDropdownMenu,
+          UButtonGroup,
           {
             content: {
               align: 'end'
-            },
-            items: getRowItems(row)
+            }
           },
           () =>
-            h(UButton, {
-              icon: 'i-lucide-ellipsis-vertical',
-              color: 'neutral',
-              variant: 'ghost',
-              class: 'ml-auto'
-            })
+            [
+              h(UButton, {
+                icon: 'i-lucide-square-pen',
+                color: 'neutral',
+                variant: 'ghost',
+                class: 'ml-auto',
+                label: t('Edit'),
+                onClick: () => {
+                  editModal.value = {
+                    item: row.original
+                  }
+                  editModalKey.value++
+                }
+              })
+            ]
         )
       )
     }
@@ -217,15 +150,16 @@ const reloadData = async () => {
 </script>
 
 <template>
-  <UDashboardPanel id="users">
+  <UDashboardPanel id="roles">
     <template #header>
-      <UDashboardNavbar :title="t('Users')">
+      <UDashboardNavbar :title="t('Roles')">
         <template #leading>
           <UDashboardSidebarCollapse />
         </template>
 
         <template #right>
-          <UsersAddModal />
+          <RolesAddModal @success="reloadData" />
+          <RolesEditModal :item="editModal.item" :time="editModalKey" @success="reloadData" />
         </template>
       </UDashboardNavbar>
     </template>
@@ -233,18 +167,18 @@ const reloadData = async () => {
     <template #body>
       <div class="flex flex-wrap items-center justify-between gap-1.5">
         <UInput
-          :model-value="(table?.tableApi?.getColumn('email')?.getFilterValue() as string)"
+          :model-value="(table?.tableApi?.getColumn('label')?.getFilterValue() as string)"
           class="max-w-sm"
           icon="i-lucide-search"
-          :placeholder="t('FilterEmails')"
-          @update:model-value="table?.tableApi?.getColumn('email')?.setFilterValue($event)"
+          :placeholder="t('FilterLabels')"
+          @update:model-value="table?.tableApi?.getColumn('label')?.setFilterValue($event)"
         />
 
         <div class="flex flex-wrap items-center gap-1.5">
-          <UsersDeleteModal :count="selectedRows.length">
+          <RolesDeleteModal :count="selectedRows.length" :items="selectedRows">
             <UButton
               v-if="selectedRows.length"
-              label="Delete"
+              :label="t('Delete')"
               color="error"
               variant="subtle"
               icon="i-lucide-trash"
@@ -255,7 +189,7 @@ const reloadData = async () => {
                 </UKbd>
               </template>
             </UButton>
-          </UsersDeleteModal>
+          </RolesDeleteModal>
 
           <USelect
             v-model="statusFilter"
@@ -333,3 +267,7 @@ const reloadData = async () => {
     </template>
   </UDashboardPanel>
 </template>
+
+<style scoped>
+
+</style>
