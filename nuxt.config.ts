@@ -1,6 +1,6 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-  modules: ['@nuxt/eslint', '@nuxt/ui-pro', '@vueuse/nuxt', '@sidebase/nuxt-auth', '@nuxtjs/i18n'],
+  modules: ['@nuxt/eslint', '@nuxt/ui', '@vueuse/nuxt', '@sidebase/nuxt-auth', '@nuxtjs/i18n'],
 
   devtools: {
     enabled: true
